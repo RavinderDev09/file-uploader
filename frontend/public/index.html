@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>File Sharing App</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 40px;
+      background: #f2f2f2;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    .upload-section, .files-section, .images-section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="file"], input[type="email"], button {
+      margin: 10px 0;
+      display: block;
+    }
+    .file-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+    .image-preview {
+      width: 150px;
+      height: auto;
+      margin: 10px;
+    }
+    .actions button {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📁 File Sharing Service</h1>
+
+<div class="upload-section">
+  <h2>Upload a File</h2>
+  <input type="file" id="fileInput" />
+  <input type="email" id="emailInput" placeholder="Recipient Email (optional)" />
+  <button onclick="uploadFile()">Upload</button>
+  <p id="uploadStatus"></p>
+</div>
+
+<div class="files-section">
+  <h2>📄 All Files</h2>
+  <div id="fileList"></div>
+</div>
+
+<div class="images-section">
+  <h2>🖼️ Image Previews</h2>
+  <div id="imageGallery"></div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:5000/api/files';
+
+  async function uploadFile() {
+    const file = document.getElementById('fileInput').files[0];
+    const email = document.getElementById('emailInput').value;
+    if (!file) return alert("Please select a file");
+
+    const formData = new FormData();
+    formData.append('file', file);
+    if (email) formData.append('emailTo', email);
+
+    try {
+      const res = await fetch(`${API_BASE}/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      document.getElementById('uploadStatus').innerText = `Uploaded! UUID: ${data.fileUuid}`;
+      loadFiles();
+      loadImages();
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    }
+  }
+
+  async function loadFiles() {
+    const res = await fetch(`${API_BASE}/files`);
+    const files = await res.json();
+    const container = document.getElementById('fileList');
+    container.innerHTML = '';
+
+    files.forEach(file => {
+      const div = document.createElement('div');
+      div.className = 'file-card';
+      div.innerHTML = `
+        <div>
+          <strong>${file.originalName}</strong> (${(file.size / 1024).toFixed(2)} KB)
+        </div>
+        <div class="actions">
+          <button onclick="downloadFile('${file.uuid}')">Download</button>
+          <button onclick="deleteFile('${file.uuid}')">Delete</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  async function loadImages() {
+    const res = await fetch(`${API_BASE}/files`);
+    const images = await res.json();
+    const gallery = document.getElementById('imageGallery');
+    gallery.innerHTML = '';
+
+    images.forEach(img => {
+      const imgElem = document.createElement('img');
+      imgElem.className = 'image-preview';
+      imgElem.src = `${API_BASE}/download/${img.uuid}`;
+      gallery.appendChild(imgElem);
+    });
+  }
+
+  async function downloadFile(uuid) {
+    window.open(`${API_BASE}/download/${uuid}`, '_blank');
+  }
+
+  async function deleteFile(uuid) {
+    if (!confirm("Delete this file?")) return;
+    await fetch(`${API_BASE}/${uuid}`, { method: 'DELETE' });
+    loadFiles();
+    loadImages();
+  }
+
+  // Initial load
+  loadFiles();
+  loadImages();
+</script>
+
+</body>
+</html>
+<img src="http://localhost:5000/api/files/download/a0dcd460-2f9a-415b-8a46-6b136a397940" style="max-width: 300px;" />
