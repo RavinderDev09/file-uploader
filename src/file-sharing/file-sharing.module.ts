@@ -4,11 +4,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UploadService } from './file-sharing.service';
 import { FileSchema,File } from './schema/file-sharing.schema';
 import { FileController } from './file-sharing.controller';
+import * as multer from 'multer';
 
 @Module({
   imports:[
     MulterModule.register({
-      dest: './uploads',
+      storage: multer.memoryStorage(), // ✅ Needed for file.buffer
     }),
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
     ],
