@@ -19,6 +19,8 @@ export class UsersService {
 ) {}
 
     async create(data: CreateUserDto): Promise<User> {
+      console.log('dataCreateUser', data);
+      
         const userEmailOrPhone = await this.userModel.findOne({
           email:data.email,
         });
@@ -55,6 +57,8 @@ export class UsersService {
 
 //login method
       async login(loginUserDto: LoginUserDto) {
+        console.log('loginData', loginUserDto);
+        
         const { email, password } = loginUserDto;
     
         // 1. Check if user exists
@@ -75,6 +79,8 @@ export class UsersService {
     
         // 4. Return token and user info (excluding password)
         const { password: _, ...userWithoutPassword } = user.toObject();
+        console.log('userlogin');
+        
         return {
           accessToken,
           user: userWithoutPassword,

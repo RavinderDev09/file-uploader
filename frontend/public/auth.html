@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Signup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+    .form-container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      font-size: 16px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #999;
+    }
+    #toggle {
+      cursor: pointer;
+      color: #007bff;
+      text-align: center;
+      margin-top: 15px;
+    }
+    .error-message {
+      color: red;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2 id="form-title">Login</h2>
+    <form id="authForm">
+      <input type="text" id="name" placeholder="Name" style="display:none" />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" style="display:none" />
+      <button type="submit" id="submitBtn">Login</button>
+    </form>
+    <div id="toggle">Don't have an account? Signup</div>
+    <div class="error-message" id="errorMsg"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('authForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const submitBtn = document.getElementById('submitBtn');
+    const formTitle = document.getElementById('form-title');
+    const toggleText = document.getElementById('toggle');
+    const errorMsg = document.getElementById('errorMsg');
+
+    let isLogin = true;
+
+    toggleText.addEventListener('click', () => {
+      isLogin = !isLogin;
+
+      formTitle.textContent = isLogin ? 'Login' : 'Signup';
+      submitBtn.textContent = isLogin ? 'Login' : 'Signup';
+      toggleText.textContent = isLogin
+        ? "Don't have an account? Signup"
+        : "Already have an account? Login";
+
+      // Toggle input visibility
+      nameInput.style.display = isLogin ? 'none' : 'block';
+      confirmPasswordInput.style.display = isLogin ? 'none' : 'block';
+
+      // Clear previous errors
+      errorMsg.textContent = '';
+      form.reset();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      const name = nameInput.value.trim();
+      const confirmPassword = confirmPasswordInput.value.trim();
+
+      errorMsg.textContent = '';
+
+      if (!email || !password || (!isLogin && (!name || !confirmPassword))) {
+        errorMsg.textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      if (!isLogin && password !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      try {
+        const payload = isLogin
+          ? { email, password }
+          : { name, email, password, confirmPassword };
+
+        const response = await fetch(isLogin ? 'http://localhost:5000/users/login' : 'http://localhost:5000/users/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorMsg.textContent = data.message || 'Something went wrong.';
+          return;
+        }
+
+        localStorage.setItem('token', data.accessToken);
+        window.location.href = 'index.html';
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = 'Server error. Please try again.';
+      }
+    });
+  </script>
+
+</body>
+</html>

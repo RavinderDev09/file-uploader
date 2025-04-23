@@ -227,6 +227,14 @@
 
     // Load files on page load
     loadFiles();
+
+
+    const token = localStorage.getItem("token");
+
+  // Token nahi mila? Redirect to login
+  if (!token) {
+    window.location.href = "auth.html"; // ya jo bhi login page ka naam hai
+  }
   </script>
 </body>
 </html>

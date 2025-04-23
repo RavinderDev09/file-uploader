@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Default route to serve upload.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'auth.html'));
 });
 console.log('add');
 
