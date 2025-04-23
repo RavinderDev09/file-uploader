@@ -1,227 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>File Sharing App</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #e9ecef;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 40px auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .upload-section {
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 20px;
-        }
-        .upload-section input {
-            margin: 10px 0;
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .upload-section button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .upload-section button:hover {
-            background: #218838;
-        }
-        .files-section, .images-section {
-            margin-top: 20px;
-        }
-        .file-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-        }
-        .file-card:last-child {
-            border-bottom: none;
-        }
-        .actions button {
-            margin-left: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .actions button:hover {
-            background: #0056b3;
-        }
-        .image-gallery {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .image-preview {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            margin: 10px;
-            border-radius: 5px;
-            border: 2px solid #ddd;
-        }
-        .alert {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            display: none;
-        }
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-        }
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Advanced File Sharing</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      margin: 20px 0;
+    }
+    #drop-zone {
+      border: 2px dashed #4CAF50;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      padding: 30px;
+      background: white;
+      text-align: center;
+      cursor: pointer;
+    }
+    #drop-zone.hover {
+      background: #e8f5e9;
+    }
+    #upload-btn {
+      margin-top: 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .file-list {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 900px;
+    }
+    .file-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+    }
+    .file-info {
+      flex: 1;
+      margin-right: 15px;
+    }
+    .preview img,
+    .preview video {
+      max-height: 80px;
+      max-width: 120px;
+      border-radius: 4px;
+    }
+    .file-actions a,
+    .file-actions button {
+      margin-left: 10px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-download {
+      background: #2196F3;
+      color: white;
+    }
+    .btn-delete {
+      background: #f44336;
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📁 File Sharing Service</h1>
-    
-    <div class="upload-section">
-        <h2>Upload a File</h2>
-        <input type="file" id="fileInput" />
-        <input type="email" id="emailInput" placeholder="Recipient Email (optional)" />
-        <button onclick="uploadFile()">Upload</button>
-        <div id="uploadStatus" class="alert"></div>
-    </div>
+  <h2>Advanced File Sharing</h2>
 
-    <div class="files-section">
-        <h2>📄 All Files</h2>
-        <div id="fileList"></div>
-    </div>
+  <div id="drop-zone">
+    <p>Click or drag & drop files here to upload</p>
+    <input type="file" id="file-input" multiple hidden />
+  </div>
 
-    <div class="images-section">
-        <h2>🖼️ Image Previews</h2>
-        <div class="image-gallery" id="imageGallery"></div>
-    </div>
-</div>
+  <button id="upload-btn">Upload Selected Files</button>
 
-<script>
-    const API_BASE = 'http://localhost:5000/api/files';
+  <div class="file-list" id="uploaded-files"></div>
 
-    async function uploadFile() {
-        const file = document.getElementById('fileInput').files[0];
-        const email = document.getElementById('emailInput').value;
-        const statusDiv = document.getElementById('uploadStatus');
-        
-        if (!file) {
-            showAlert(statusDiv, "Please select a file", "error");
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        if (email) formData.append('emailTo', email);
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const uploadedFilesContainer = document.getElementById('uploaded-files');
 
-        try {
-            const res = await fetch(`${API_BASE}/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (res.ok) {
-                showAlert(statusDiv, `Uploaded! UUID: ${data.fileUuid}`, "success");
-                loadFiles();
-                loadImages();
-            } else {
-                showAlert(statusDiv, "Upload failed: " + data.message, "error");
-            }
-        } catch (err) {
-            console.error(err);
-            showAlert(statusDiv, "Upload failed", "error");
-        }
+    let filesToUpload = [];
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('hover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('hover');
+    });
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('hover');
+      filesToUpload = [...e.dataTransfer.files];
+      showFilePreviews();
+    });
+
+    fileInput.addEventListener('change', () => {
+      filesToUpload = [...fileInput.files];
+      showFilePreviews();
+    });
+
+    function showFilePreviews() {
+      uploadedFilesContainer.innerHTML = '';
+      filesToUpload.forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.innerHTML = `
+          <div class="file-info">
+                <strong>${file.name}</strong><p>${(file.size / 1024).toFixed(10)} KB</p>
+          </div>
+        `;
+        uploadedFilesContainer.appendChild(card);
+      });
     }
 
-    function showAlert(element, message, type) {
-        element.textContent = message;
-        element.className = `alert alert-${type}`;
-        element.style.display = 'block';
-        setTimeout(() => {
-            element.style.display = 'none';
-        }, 3000);
-    }
+    uploadBtn.addEventListener('click', async () => {
+      if (!filesToUpload.length) return alert('No files selected.');
+
+      const formData = new FormData();
+      filesToUpload.forEach(file => formData.append('files', file)); // must match NestJS field name
+
+      try {
+        const res = await fetch('http://localhost:5000/api/files/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.ok) {
+          alert('Files uploaded successfully!');
+          filesToUpload = [];
+          fileInput.value = '';
+          loadFiles();
+        } else {
+          const errorText = await res.text();
+          alert('Upload failed: ' + errorText);
+          console.error('Upload error:', errorText);
+        }
+      } catch (err) {
+        console.error('Upload failed:', err);
+        alert('Upload failed: Network error or server issue.');
+      }
+    });
 
     async function loadFiles() {
-        const res = await fetch(`${API_BASE}/files`);
+      try {
+        const res = await fetch('http://localhost:5000/api/files/files');
         const files = await res.json();
-        const container = document.getElementById('fileList');
-        container.innerHTML = '';
+        uploadedFilesContainer.innerHTML = '';
 
-        files.forEach(file => {
-            const div = document.createElement('div');
-            div.className = 'file-card';
-            div.innerHTML = `
-                <div>
-                    <strong>${file.originalName}</strong> (${(file.size / 1024).toFixed(2)} KB)
-                </div>
-                <div class="actions">
-                    <button onclick="downloadFile('${file.uuid}')"><i class="fas fa-arrow-alt-circle-down"></i> Download</button>
-                    <button onclick="deleteFile('${file.uuid}')"><i class="fas fa-trash-alt"></i> Delete</button>
-                </div>
-            `;
-            container.appendChild(div);
-        });
-    }
+        for (const file of files) {
+          const card = document.createElement('div');
+          card.className = 'file-card';
 
-    async function loadImages() {
-        const res = await fetch(`${API_BASE}/files`);
-        const images = await res.json();
-        const gallery = document.getElementById('imageGallery');
-        gallery.innerHTML = '';
+          const info = document.createElement('div');
+          info.className = 'file-info';
+          info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
 
-        images.forEach(img => {
-            const imgElem = document.createElement('img');
-            imgElem.className = 'image-preview';
-            imgElem.src = `${API_BASE}/download/${img.uuid}`;
-            gallery.appendChild(imgElem);
-        });
-    }
+          const preview = document.createElement('div');
+          preview.className = 'preview';
+          const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
 
-    async function downloadFile(uuid) {
-        window.open(`${API_BASE}/download/${uuid}`, '_blank');
+          if (file.contentType.startsWith('image/')) {
+            preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
+          } else if (file.contentType.startsWith('video/')) {
+            preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
+          } else if (file.contentType.startsWith('audio/')) {
+            preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
+          } else if (file.contentType === 'application/pdf') {
+            preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
+          }
+
+          const actions = document.createElement('div');
+          actions.className = 'file-actions';
+          actions.innerHTML = `
+            <a href="${fileUrl}?download=true" class="btn-download">Download</a>
+            <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
+          `;
+
+          card.appendChild(preview);
+          card.appendChild(info);
+          card.appendChild(actions);
+
+          uploadedFilesContainer.appendChild(card);
+        }
+      } catch (err) {
+        console.error('Failed to load files:', err);
+      }
     }
 
     async function deleteFile(uuid) {
-        if (!confirm("Delete this file?")) return;
-        await fetch(`${API_BASE}/${uuid}`, { method: 'DELETE' });
+      try {
+        await fetch(`http://localhost:5000/api/files/${uuid}`, { method: 'DELETE' });
         loadFiles();
-        loadImages();
+      } catch (err) {
+        console.error('Failed to delete file:', err);
+        alert('Delete failed.');
+      }
     }
 
-    // Initial load
+    // Load files on page load
     loadFiles();
-    loadImages();
-</script>
-
+  </script>
 </body>
 </html>
