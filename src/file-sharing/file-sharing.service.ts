@@ -18,9 +18,7 @@ import { MIMEType } from 'util';
 
 @Injectable()
 export class UploadService {
-  private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  private readonly ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
-  private readonly logger = new Logger(UploadService.name);
+  
 
   constructor(
     @InjectModel(File.name) private readonly fileModel: Model<File>,
@@ -33,60 +31,51 @@ export class UploadService {
     });
   }
 
-  // async uploadFile(file: Express.Multer.File, emailTo: string): Promise<any> {
-  //   try {
-  //     console.log('file');
-      
-  //     const mimeType = mime.lookup(file.originalname);
-  //     if (!this.ALLOWED_FILE_TYPES.includes(mimeType)) {
-  //       throw new BadRequestException('Invalid file type');
-  //     }
-
-  //     if (file.size > this.MAX_FILE_SIZE) {
-  //       throw new BadRequestException('File size exceeds limit');
-  //     }
-
-  //     const fileUuid = uuidv4();
-  //     const expiresAt = moment().add(24, 'hours').toDate();
-
-  //     const uploadStream = this.gridFSBucket.openUploadStream(file.originalname, {
-  //       contentType: file.mimetype,
-  //     });
-
-  //     uploadStream.end(file.buffer);
-
-  //     const newFile = new this.fileModel({
-  //       uuid:fileUuid,
-  //       originalName: file.originalname,
-  //       filename: uploadStream.id.toString(),
-  //       size: file.size,
-  //       contentType: file.mimetype, // 👈 set contentType here
-  //       expiresAt: expiresAt,
-  //       emailTo,
-  //       // emailFrom,
-  //     });
-  //     await newFile.save();
-  //        console.log('saved file', `http://localhost:5000/api/files/download ${fileUuid}`);
-         
-  //        return {
-  //         message: 'File uploaded successfully',
-  //         downloadUrl: `/api/files/download/${fileUuid}`,
-  //         fileUuid,
-  //         fileName: file.originalname,   // ADD THIS
-  //         fileSize: file.size,           // ADD THIS
-  //       };
-  //   } catch (error) {
-  //     this.logger.error('Upload error', error.stack);
-  //     throw new InternalServerErrorException('Upload failed');
-  //   }
-  // }
-
+  
   async getFileByUuid(uuid: string): Promise<File> {
     const file = await this.fileModel.findOne({ uuid });
     if (!file) throw new BadRequestException('File not found');
     return file;
   }
 
+
+  async uploadFile(file: Express.Multer.File, email:string): Promise<any> {
+    console.log('email', email);
+    
+    return new Promise((resolve, reject) => {
+      const { originalname, mimetype, buffer }= file;
+      const uuid = uuidv4();
+  
+      const uploadStream = this.gridFSBucket.openUploadStream(originalname, {
+        metadata: { uuid, mimetype },
+        contentType: mimetype
+      });
+  
+      uploadStream.end(buffer); // Stream ends and data written
+  
+      uploadStream.on('finish', async () => {
+        console.log('abc');
+        
+        const savedFile = await this.fileModel.create({
+          uuid,
+          originalName: originalname,
+          filename: uploadStream.id, // ✅ Use this
+          size: buffer.length,
+          contentType: mimetype,
+        });
+  
+        resolve({ message: 'File uploaded', uuid });
+      });
+  
+      uploadStream.on('error', (err) => {
+        console.error('Upload error:', err);
+        reject(err);
+      });
+    });
+  }
+
+
+  
 
   async downloadFile(uuid: string, res: Response): Promise<void> {
     try {
@@ -106,10 +95,12 @@ export class UploadService {
       const downloadStream = this.gridFSBucket.openDownloadStream(fileObjectId);
   
       // Set proper headers
+      res.setHeader('Content-Disposition', 'inline');
       res.set({
         'Content-Type': fileDoc.contentType || 'application/octet-stream',
+        // 'Content-Disposition':'inline',
         'Content-Disposition': `attachment; filename="${encodeURIComponent(fileDoc.originalName)}"`,
-        'Content-Length': fileDoc.size.toString(),
+        'Content-Length': fileDoc.size.toString(),        
       });
   
       // Handle download stream
@@ -134,68 +125,41 @@ export class UploadService {
   }
 
 
-async uploadFile(file: Express.Multer.File, email:string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const { originalname, mimetype, buffer } = file;
-    const uuid = uuidv4();
 
-    const uploadStream = this.gridFSBucket.openUploadStream(originalname, {
-      metadata: { uuid, mimetype },
-      contentType: mimetype,
-    });
+async viewOrDownloadFile( uuid: string, download: string, res: Response,): Promise<void> {
+  try {
+    const fileDoc = await this.fileModel.findOne({ uuid });
+    if (!fileDoc) throw new NotFoundException('File not found');
 
-    uploadStream.end(buffer); // Stream ends and data written
+    if (fileDoc.expiresAt && fileDoc.expiresAt < new Date()) {
+      throw new GoneException('Link has expired');
+    }
 
-    uploadStream.on('finish', async () => {
-      const savedFile = await this.fileModel.create({
-        uuid,
-        originalName: originalname,
-        filename: uploadStream.id, // ✅ Use this
-        size: buffer.length,
-        contentType: mimetype,
-      });
+    const fileObjectId = new mongoose.Types.ObjectId(fileDoc.filename);
+    const downloadStream = this.gridFSBucket.openDownloadStream(fileObjectId);
 
-      resolve({ message: 'File uploaded', uuid });
-    });
+    const contentType = fileDoc.contentType || 'application/octet-stream';
+    const isDownload = download === 'true';
 
-    uploadStream.on('error', (err) => {
-      console.error('Upload error:', err);
-      reject(err);
-    });
-  });
+    res.setHeader('Content-Type', contentType);
+    res.setHeader(
+      'Content-Disposition',
+      isDownload
+        ? `attachment; filename="${encodeURIComponent(fileDoc.originalName)}"`
+        : 'inline'
+    );
+
+    downloadStream
+      .on('error', (err) => {
+        console.error('File stream error:', err);
+        if (!res.headersSent) res.status(500).send('Error streaming file');
+      })
+      .pipe(res);
+  } catch (err) {
+    console.error('View/Download error:', err);
+    if (!res.headersSent) res.status(500).send('Internal Server Error');
+  }
 }
-
-
-
-// async downloadFile( uuid: string, res: Response) {
-//   const fileDoc = await this.fileModel.findOne({ uuid });
-
-//   console.log('fileDoc:', fileDoc); // Add logging for debugging
-
-//   if (!fileDoc) {
-//     throw new NotFoundException('File not found');
-//   }
-
-//   if (!fileDoc.contentType || !fileDoc.contentType.startsWith('image')) {
-//     throw new BadRequestException('Not an image');
-//   }
-
-//   const fileObjectId = new mongoose.Types.ObjectId(fileDoc.filename);
-//   const downloadStream = this.gridFSBucket.openDownloadStream(fileObjectId);
-
-//   const contentType = fileDoc.contentType || 'application/octet-stream';
-//   res.setHeader('Content-Type', contentType);
-//   res.setHeader('Content-Disposition', 'inline');
-
-//   downloadStream
-//     .on('error', (err) => {
-//       console.error('Preview error:', err);
-//       res.status(500).send('Preview error');
-//     })
-//     .pipe(res);
-// }
-
-
 
 
 
@@ -215,26 +179,17 @@ async uploadFile(file: Express.Multer.File, email:string): Promise<any> {
       uuid: file.uuid,
       // createdAt: file.createdAt,
       downloadUrl: `/api/files/download/${file.uuid}`,
+      contentType:file.contentType  
     }));
   }
 
 
-  // file-sharing.service.ts
-  async getAllImageFiles() {
-    const files = await this.fileModel.find({
-      mimetype: { $regex: '^image/' }
-    });
   
-    return files.map(file => ({
-      name: file.originalName || file.filename,
-      uuid: file.uuid,
-      url: `/api/files/download/${file.uuid}`
-    }));
-  }
 
    getMimeType(filename) {
     const ext = path.extname(filename).toLowerCase();
-    if (['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'].includes(ext)) return 'image/' + ext.slice(1);
+    if (['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.pdf'
+    ].includes(ext)) return 'image/' + ext.slice(1);
     if (ext === '.pdf') return 'application/pdf';
     return 'application/octet-stream';
   }

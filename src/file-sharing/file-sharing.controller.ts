@@ -9,8 +9,10 @@ import {
   Body,
   Delete,
   HttpCode,
+  UploadedFiles,
+  Query,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { UploadService } from './file-sharing.service';
 
@@ -19,17 +21,31 @@ export class FileController {
   constructor(private readonly fileService: UploadService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files'))
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @Body('emailTo') emailTo: string,
   ) {
-    return this.fileService.uploadFile(file, emailTo);
+    const results = [];
+    for (const file of files) {
+      const result = await this.fileService.uploadFile(file, emailTo);
+      results.push(result);
+    }
+    return { message: 'Files uploaded', files: results };
   }
 
   @Get('download/:uuid')
 async download(@Param('uuid') uuid: string, @Res({ passthrough: false }) res: Response) {
   return this.fileService.downloadFile(uuid, res);
+}
+
+@Get('view/:uuid')
+async viewOrDownloadFile(
+  @Param('uuid') uuid: string,
+  @Query('download') download: string,
+  @Res() res: Response,
+): Promise<void> {
+  return this.fileService.viewOrDownloadFile(uuid, download,res);
 }
 
   @Delete(':uuid')
@@ -43,8 +59,5 @@ async download(@Param('uuid') uuid: string, @Res({ passthrough: false }) res: Re
     return this.fileService.listAllFiles();
   }
 
-  @Get('images')
-async getAllImagePreviews() {
-  return this.fileService.getAllImageFiles();
-}
+
 }
