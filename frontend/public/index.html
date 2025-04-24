@@ -12,7 +12,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      /* background-image: url("http://localhost:5000/api/files/view/0efbeb59-8497-4345-82e0-ebd23d8d3955"); */
+     
     }
+
+    
     h2 {
       margin: 20px 0;
     }
@@ -148,76 +152,190 @@
       filesToUpload.forEach(file => formData.append('files', file)); // must match NestJS field name
 
       try {
-        const res = await fetch('http://localhost:5000/api/files/upload', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (res.ok) {
-          alert('Files uploaded successfully!');
-          filesToUpload = [];
-          fileInput.value = '';
-          loadFiles();
-        } else {
-          const errorText = await res.text();
-          alert('Upload failed: ' + errorText);
-          console.error('Upload error:', errorText);
-        }
-      } catch (err) {
-        console.error('Upload failed:', err);
-        alert('Upload failed: Network error or server issue.');
-      }
+    const res = await fetch('http://localhost:5000/api/files/upload', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,  // Send token as Bearer token in header
+        },
+        body: formData,
     });
 
-    async function loadFiles() {
-      try {
-        const res = await fetch('http://localhost:5000/api/files/files');
-        const files = await res.json();
-        uploadedFilesContainer.innerHTML = '';
-
-        for (const file of files) {
-          const card = document.createElement('div');
-          card.className = 'file-card';
-
-          const info = document.createElement('div');
-          info.className = 'file-info';
-          info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
-
-          const preview = document.createElement('div');
-          preview.className = 'preview';
-          const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
-
-          if (file.contentType.startsWith('image/')) {
-            preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
-          } else if (file.contentType.startsWith('video/')) {
-            preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
-          } else if (file.contentType.startsWith('audio/')) {
-            preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
-          } else if (file.contentType === 'application/pdf') {
-            preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
-          }
-
-          const actions = document.createElement('div');
-          actions.className = 'file-actions';
-          actions.innerHTML = `
-            <a href="${fileUrl}?download=true" class="btn-download">Download</a>
-            <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
-          `;
-
-          card.appendChild(preview);
-          card.appendChild(info);
-          card.appendChild(actions);
-
-          uploadedFilesContainer.appendChild(card);
-        }
-      } catch (err) {
-        console.error('Failed to load files:', err);
-      }
+    if (res.ok) {
+        alert('Files uploaded successfully!');
+        filesToUpload = [];
+        loadFiles();
+    } else {
+        const errorText = await res.text();
+        alert('Upload failed: ' + errorText);
     }
+} catch (err) {
+    console.error('Upload failed:', err);
+    alert('Upload failed: Network error or server issue.');
+}
+    });
+
+//     async function loadFiles() {
+//       try {
+//         // const res = await fetch('http://localhost:5000/api/files/files');
+//         // const files = await res.json();
+//         //
+//         const res = await fetch('http://localhost:5000/api/files/files', {
+//   headers: {
+//     Authorization: `Bearer ${localStorage.getItem('token')}`,
+//   },
+// });
+// const files = await res.json();
+//         uploadedFilesContainer.innerHTML = '';
+
+//         for (const file of files) {
+//           const card = document.createElement('div');
+//           card.className = 'file-card';
+
+//           const info = document.createElement('div');
+//           info.className = 'file-info';
+//           info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
+
+//           const preview = document.createElement('div');
+//           preview.className = 'preview';
+//           const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
+
+//           if (file.contentType.startsWith('image/')) {
+//             preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
+//           } else if (file.contentType.startsWith('video/')) {
+//             preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
+//           } else if (file.contentType.startsWith('audio/')) {
+//             preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
+//           } else if (file.contentType === 'application/pdf') {
+//             preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
+//           }
+
+//           const actions = document.createElement('div');
+//           actions.className = 'file-actions';
+//           actions.innerHTML = `
+//             <a href="${fileUrl}?download=true" class="btn-download">Download</a>
+//             <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
+//           `;
+
+//           card.appendChild(preview);
+//           card.appendChild(info);
+//           card.appendChild(actions);
+
+//           uploadedFilesContainer.appendChild(card);
+//         }
+//       } catch (err) {
+//         console.error('Failed to load files:', err);
+//       }
+//     }
+
+
+async function loadFiles() {
+  try {
+    // Show loading spinner
+    uploadedFilesContainer.innerHTML = '<p>Loading files...</p>';
+
+    // Fetching files from the server with JWT token
+    const res = await fetch('http://localhost:5000/api/files/files', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    // Check if the response is ok
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Failed to load files: ${errorText}`);
+    }
+
+    // Parse the response JSON
+    const files = await res.json();
+    
+    // Check if there are no files
+    if (files.length === 0) {
+      uploadedFilesContainer.innerHTML = '<p>No files found. Upload your first file!</p>';
+      return;
+    }
+
+    // Clear any previous content
+    uploadedFilesContainer.innerHTML = '';
+
+    // Loop through each file and create a preview
+    for (const file of files) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+
+      const info = document.createElement('div');
+      info.className = 'file-info';
+      info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
+
+      const preview = document.createElement('div');
+      preview.className = 'preview';
+      const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
+
+      // Preview based on content type (image, video, audio, PDF)
+      if (file.contentType.startsWith('image/')) {
+        preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
+      } else if (file.contentType.startsWith('video/')) {
+        preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
+      } else if (file.contentType.startsWith('audio/')) {
+        preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
+      } else if (file.contentType === 'application/pdf') {
+        preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
+      }
+
+      // File actions (Download, Delete)
+      const actions = document.createElement('div');
+      actions.className = 'file-actions';
+      actions.innerHTML = `
+        <a href="${fileUrl}?download=true" class="btn-download">Download</a>
+        <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
+      `;
+
+      // Append preview, info, and actions to the file card
+      card.appendChild(preview);
+      card.appendChild(info);
+      card.appendChild(actions);
+
+      // Add the file card to the container
+      uploadedFilesContainer.appendChild(card);
+    }
+  } catch (err) {
+    console.error('Failed to load files:', err);
+    uploadedFilesContainer.innerHTML = `<p>Error loading files: ${err.message}</p>`;
+  }
+}
+
+// Function to delete a file
+async function deleteFile(uuid) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/files/${uuid}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    if (res.ok) {
+      alert('File deleted successfully!');
+      loadFiles(); // Reload files after deletion
+    } else {
+      const errorText = await res.text();
+      alert('Delete failed: ' + errorText);
+    }
+  } catch (err) {
+    console.error('Failed to delete file:', err);
+    alert('Delete failed: Network error or server issue.');
+  }
+}
+
+// Load files when the page loads
+loadFiles();
+
 
     async function deleteFile(uuid) {
       try {
-        await fetch(`http://localhost:5000/api/files/${uuid}`, { method: 'DELETE' });
+        await fetch(`http://localhost:5000/api/files/delete/${uuid}`, { method: 'DELETE' ,headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },});
         loadFiles();
       } catch (err) {
         console.error('Failed to delete file:', err);
@@ -235,6 +353,14 @@
   if (!token) {
     window.location.href = "auth.html"; // ya jo bhi login page ka naam hai
   }
+
+
+// const res = await fetch('http://localhost:5000/api/files/files', {
+//   headers: {
+//     Authorization: `Bearer ${token}`,
+//   },
+// });
+// const files = await res.json();
   </script>
 </body>
 </html>

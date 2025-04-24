@@ -43,6 +43,7 @@ export class UsersService {
           ...data,
           password: hashedPassword,
           confirmPassword: hashedPassword,
+          role:'user',
           createdBy: new Types.ObjectId(),
           updatedBy: new Types.ObjectId(),
         //   status: BaseStatus.active,
@@ -74,7 +75,7 @@ export class UsersService {
         }
     
         // 3. Generate JWT payload
-        const payload = { email: user.email, sub: user._id };
+        const payload = { username: user.name, sub: user._id, role: user.role };
         const accessToken = this.jwtService.sign(payload);
     
         // 4. Return token and user info (excluding password)

@@ -39,8 +39,8 @@ export class UploadService {
   }
 
 
-  async uploadFile(file: Express.Multer.File, email:string): Promise<any> {
-    console.log('email', email);
+  async uploadFile(file: Express.Multer.File, userId:string): Promise<any> {
+    console.log('user', userId);
     
     return new Promise((resolve, reject) => {
       const { originalname, mimetype, buffer }= file;
@@ -62,6 +62,7 @@ export class UploadService {
           filename: uploadStream.id, // ✅ Use this
           size: buffer.length,
           contentType: mimetype,
+          userId:userId
         });
   
         resolve({ message: 'File uploaded', uuid });
@@ -171,16 +172,22 @@ async viewOrDownloadFile( uuid: string, download: string, res: Response,): Promi
     await this.fileModel.deleteOne({ uuid });
   }
 
-  async listAllFiles(): Promise<any[]> {
-    const files = await this.fileModel.find();
-    return files.map((file) => ({
-      originalName: file.originalName,
-      size: file.size,
-      uuid: file.uuid,
-      // createdAt: file.createdAt,
-      downloadUrl: `/api/files/download/${file.uuid}`,
-      contentType:file.contentType  
-    }));
+  async listAllFiles(userId?:string): Promise<any[]> {
+  
+    if(userId){
+      const files = await this.fileModel.find({userId:userId});
+      return files.map((file) => ({
+        originalName: file.originalName,
+        size: file.size,
+        uuid: file.uuid,
+        // createdAt: file.createdAt,
+        downloadUrl: `/api/files/download/${file.uuid}`,
+        contentType:file.contentType  
+      }));
+    }else {
+      return this.fileModel.find().lean(); // All files
+    }
+   
   }
 
 

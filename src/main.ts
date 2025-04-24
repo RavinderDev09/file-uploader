@@ -4,9 +4,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: '*', // Allow all origins (you can specify allowed domains)
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
+    origin: 'http://localhost:3002', // Allow the frontend URL
+    methods: 'GET,POST,PUT,DELETE', // Allow these methods
+    allowedHeaders: 'Content-Type, Authorization', // Allow Authorization header
   });
  
   await app.listen(process.env.PORT ?? 5000);

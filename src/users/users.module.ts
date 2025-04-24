@@ -4,15 +4,18 @@ import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/user.schema';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
 
 @Module({
   imports:[
     MongooseModule.forFeature([{name:User.name, schema:UserSchema}]),
+    PassportModule,
     JwtModule.register({
-      secret: 'hello', // Use an environment variable for the secret key
-      signOptions: { expiresIn: '10h' },
+      secret: 'hello@1234',
+      signOptions: { expiresIn: '1d' },
     }),
+
   ],
   controllers: [UsersController],
   providers: [UsersService],
