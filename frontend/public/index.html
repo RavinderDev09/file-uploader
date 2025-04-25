@@ -5,7 +5,18 @@
   <title>Advanced File Sharing</title>
 
   <link rel="stylesheet" href="styles.css">
+ <style>
+  .btn-copy {
+  background-color: #f0ad4e;
+  border: none;
+  padding: 6px 10px;
+  color: white;
+  border-radius: 5px;
+  margin-right: 8px;
+  cursor: pointer;
+}
 
+ </style>
 
 </head>
 <body>
@@ -13,17 +24,21 @@
   <h2>Advanced File Sharing</h2>
 
  <!-- Profile Button -->
- <div id="profileButton" class="profile-button" onclick="toggleProfileSection()">
+<div id="profileButton" class="profile-button" onclick="toggleProfileSection()">
   👤
 </div>
 
 <!-- User Profile Section -->
-<div id="profileSection" class="profile-section">
+<div id="profileSection" class="profile-section" style="display: none;">
   <img id="profileImage" width="100" height="100" />
   <h3 id="username"></h3>
   <p id="email"></p>
   <p id="role"></p>
-  <button onclick="logout()">Logout</button>
+  
+  <div style="display: flex; gap: 10px;">
+    <button onclick="logout()">Logout</button>
+    <button onclick="forgotPassword()">Forgot Password</button>
+  </div>
 </div>
 
 

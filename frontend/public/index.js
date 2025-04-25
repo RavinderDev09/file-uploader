@@ -42,103 +42,119 @@ function showFilePreviews() {
   });
 }
 
+
 uploadBtn.addEventListener('click', async () => {
   if (!filesToUpload.length) return alert('No files selected.');
 
+  uploadBtn.disabled = true; // Disable button
+  uploadBtn.innerText = 'Uploading...'; // Change text
+
   const formData = new FormData();
-  filesToUpload.forEach(file => formData.append('files', file)); // must match NestJS field name
+  filesToUpload.forEach(file => formData.append('files', file));
 
   try {
-const res = await fetch('http://localhost:5000/api/files/upload', {
-    method: 'POST',
-    headers: {
-        'Authorization': `Bearer ${token}`,  // Send token as Bearer token in header
-    },
-    body: formData,
+    const res = await fetch('http://localhost:5000/api/files/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`, // ensure token is defined globally
+      },
+      body: formData,
+    });
+
+    if (res.ok) {
+      alert('Files uploaded successfully!');
+      filesToUpload = [];
+      uploadedFilesContainer.innerHTML = '';
+      loadFiles(); // Refresh file list
+    } else {
+      const errorText = await res.text();
+      alert('Upload failed: ' + errorText);
+    }
+  } catch (err) {
+    console.error('Upload failed:', err);
+    alert('Upload failed: Network error or server issue.');
+  } finally {
+    uploadBtn.disabled = false;
+    uploadBtn.innerText = 'Upload Selected Files'; // Reset button
+  }
 });
 
-if (res.ok) {
-    alert('Files uploaded successfully!');
-    filesToUpload = [];
-    loadFiles();
-} else {
-    const errorText = await res.text();
-    alert('Upload failed: ' + errorText);
-}
-} catch (err) {
-console.error('Upload failed:', err);
-alert('Upload failed: Network error or server issue.');
-}
-});
 
 
 async function loadFiles() {
-try {
-const token = localStorage.getItem('token'); // ✅ Get token from localStorage first
-console.log('Token:', token);
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:5000/api/files/files', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
-const res = await fetch('http://localhost:5000/api/files/files', {
-  headers: {
-'Authorization': `Bearer ${token}`
-}
-});
+    uploadedFilesContainer.innerHTML = '<p>Loading files...</p>';
 
-uploadedFilesContainer.innerHTML = '<p>Loading files...</p>';
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Failed to load files: ${errorText}`);
+    }
 
-if (!res.ok) {
-  const errorText = await res.text();
-  throw new Error(`Failed to load files: ${errorText}`);
-}
+    const files = await res.json();
 
-const files = await res.json();
+    if (files.length === 0) {
+      uploadedFilesContainer.innerHTML = '<p>No files found. Upload your first file!</p>';
+      return;
+    }
 
-if (files.length === 0) {
-  uploadedFilesContainer.innerHTML = '<p>No files found. Upload your first file!</p>';
-  return;
-}
+    uploadedFilesContainer.innerHTML = '';
 
-uploadedFilesContainer.innerHTML = '';
+    for (const file of files) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
 
-for (const file of files) {
-  const card = document.createElement('div');
-  card.className = 'file-card';
+      const info = document.createElement('div');
+      info.className = 'file-info';
+      info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
 
-  const info = document.createElement('div');
-  info.className = 'file-info';
-  info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
+      const preview = document.createElement('div');
+      preview.className = 'preview';
+      const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
 
-  const preview = document.createElement('div');
-  preview.className = 'preview';
-  const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
+      if (file.contentType.startsWith('image/')) {
+        preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
+      } else if (file.contentType.startsWith('video/')) {
+        preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
+      } else if (file.contentType.startsWith('audio/')) {
+        preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
+      } else if (file.contentType === 'application/pdf') {
+        preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
+      }
 
-  if (file.contentType.startsWith('image/')) {
-    preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
-  } else if (file.contentType.startsWith('video/')) {
-    preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
-  } else if (file.contentType.startsWith('audio/')) {
-    preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
-  } else if (file.contentType === 'application/pdf') {
-    preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
+      const actions = document.createElement('div');
+      actions.className = 'file-actions';
+      actions.innerHTML = `
+        <button class="btn-copy" onclick="copyToClipboard('${fileUrl}')">Copy URL</button>
+        <a href="${fileUrl}?download=true" class="btn-download">Download</a>
+        <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
+      `;
+
+      card.appendChild(preview);
+      card.appendChild(info);
+      card.appendChild(actions);
+
+      uploadedFilesContainer.appendChild(card);
+    }
+  } catch (err) {
+    console.error('Failed to load files:', err);
+    uploadedFilesContainer.innerHTML = `<p>Error loading files: ${err.message}</p>`;
   }
-
-  const actions = document.createElement('div');
-  actions.className = 'file-actions';
-  actions.innerHTML = `
-    <a href="${fileUrl}?download=true" class="btn-download">Download</a>
-    <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
-  `;
-
-  card.appendChild(preview);
-  card.appendChild(info);
-  card.appendChild(actions);
-
-  uploadedFilesContainer.appendChild(card);
 }
-} catch (err) {
-console.error('Failed to load files:', err);
-uploadedFilesContainer.innerHTML = `<p>Error loading files: ${err.message}</p>`;
+
+// ✅ Helper Function: Copy to Clipboard
+function copyToClipboard(url) {
+  navigator.clipboard.writeText(url)
+    .then(() => alert('URL copied to clipboard!'))
+    .catch(() => alert('Failed to copy URL.'));
 }
-}
+
 
 // Function to delete a file
 async function deleteFile(uuid) {
@@ -182,7 +198,6 @@ async function deleteFile(uuid) {
 // Load files on page load
 loadFiles();
 
-
 const token = localStorage.getItem("token");
 
 // Token nahi mila? Redirect to login
@@ -192,49 +207,33 @@ window.location.href = "auth.html"; // ya jo bhi login page ka naam hai
 
 
 
-// Fetch User Profile Function
+let currentUserEmail = null; // store fetched user email globally
+
 async function fetchUserProfile() {
   const token = localStorage.getItem('token');
-
-  console.log('fdkfjdkjldskjlfd', token);
-  
   if (!token) {
     alert("No token found. Please login again.");
-    // window.location.href = "/auth.html"; // Redirect to login
     return;
   }
 
   try {
     const response = await fetch('http://localhost:5000/users/profile', {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
     const data = await response.json();
-
-    if (data.success) {
-      
+    if (data.success && data.result) {
       const user = data.result;
-      console.log('*************************88', data.result);
+      currentUserEmail = user.email || null; // 🔥 Save user email globally
 
-       
-      if(user){        
-        console.log('user',); // ✅ Log actual user object
-        document.getElementById('username').innerText = `Name: ${user.name || 'N/A'}`;
-        document.getElementById('email').innerText = `Email: ${user.email || 'N/A'}`;
-        document.getElementById('role').innerText = `Role: ${user.role || 'N/A'}`;
-  
-        // Profile image
-        document.getElementById('profileImage').src =
-          user.profileImage
-            ? `http://localhost:5000/api/files/view/${user.profileImage}`
-            : 'https://www.w3schools.com/howto/img_avatar.png';
-      }else {
-        alert('User data missing from response.');
-      }
-      
+      document.getElementById('username').innerText = `Name: ${user.name || 'N/A'}`;
+      document.getElementById('email').innerText = `Email: ${user.email || 'N/A'}`;
+      document.getElementById('role').innerText = `Role: ${user.role || 'N/A'}`;
+      document.getElementById('profileImage').src =
+        user.profileImage
+          ? `http://localhost:5000/api/files/view/${user.profileImage}`
+          : 'https://www.w3schools.com/howto/img_avatar.png';
     } else {
       alert('Failed to fetch user data');
     }
@@ -243,22 +242,43 @@ async function fetchUserProfile() {
   }
 }
 
-// Logout Function
 function logout() {
   localStorage.removeItem('authToken');
   alert('Logged out successfully!');
   document.getElementById('profileSection').style.display = 'none';
-  window.location.href = '/auth.html'; // Optional redirect
+  window.location.href = '/auth.html';
 }
 
-// Toggle Profile Section
 function toggleProfileSection() {
-  const profileSection = document.getElementById('profileSection');
-
-  if (profileSection.style.display === 'block') {
-    profileSection.style.display = 'none';
+  const section = document.getElementById('profileSection');
+  if (section.style.display === 'block') {
+    section.style.display = 'none';
   } else {
-    fetchUserProfile(); // Safe: defined above
-    profileSection.style.display = 'block';
+    fetchUserProfile();
+    section.style.display = 'block';
+  }
+}
+
+async function forgotPassword() {
+  if (!currentUserEmail) {
+    alert("Please login or refresh to fetch profile data.");
+    return;
+  }
+
+  const confirmReset = confirm(`Are you sure you want to reset the password for ${currentUserEmail}?`);
+  if (!confirmReset) return;
+
+  try {
+    const response = await fetch('http://localhost:5000/users/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentUserEmail })
+    });
+
+    const result = await response.json();
+    alert(result.message || 'Reset link sent if email exists');
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Something went wrong while sending reset link.');
   }
 }

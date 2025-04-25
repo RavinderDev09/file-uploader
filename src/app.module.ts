@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({ isGlobal: true }),  // Ensure env variables are loaded
         MongooseModule.forRoot("mongodb+srv://ravinder:ravi1234@cluster0.mcajp.mongodb.net"), UsersModule    ,  
   ],
+  providers: [],
 })
 export class AppModule {}
     

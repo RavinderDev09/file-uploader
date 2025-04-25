@@ -5,10 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/user.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { EmailServiceModule } from 'src/email-service/email.module';
+import { EmailService } from 'src/email-service/email-service.service';
 
 
 @Module({
   imports:[
+    EmailServiceModule,
     MongooseModule.forFeature([{name:User.name, schema:UserSchema}]),
     PassportModule,
     JwtModule.register({
@@ -18,6 +21,7 @@ import { PassportModule } from '@nestjs/passport';
 
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService,EmailService],
 })
+
 export class UsersModule {}

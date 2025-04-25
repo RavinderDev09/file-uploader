@@ -40,8 +40,6 @@ export class UploadService {
 
 
   async uploadFile(file: Express.Multer.File, userId:string): Promise<any> {
-    console.log('user', userId);
-    
     return new Promise((resolve, reject) => {
       const { originalname, mimetype, buffer }= file;
       const uuid = uuidv4();
@@ -54,8 +52,6 @@ export class UploadService {
       uploadStream.end(buffer); // Stream ends and data written
   
       uploadStream.on('finish', async () => {
-        console.log('abc');
-        
         const savedFile = await this.fileModel.create({
           uuid,
           originalName: originalname,

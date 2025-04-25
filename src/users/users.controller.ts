@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, LoginUserDto } from './dto/user.dto';
 import { User } from './schema/user.schema';
@@ -56,5 +56,21 @@ async getProfile(@Req() req : RequestWithUser) {
   };
 }
 
+
+@Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    const message = await this.usersService.forgotPassword(email);
+    return { message };
+  }
+
+  @Post('reset-password')
+async resetPassword(
+  @Body('token') token: string,
+  @Query('newPassword') newPassword: string,
+){
+  const result =  await this.usersService.resetPassword(token, newPassword)
+ return { success: true, result }
+
+}
   
 }

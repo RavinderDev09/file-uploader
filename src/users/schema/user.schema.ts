@@ -12,7 +12,11 @@ export class User{
     password:string
     @Prop()
     email:string
- @Prop({ default: 'user' })
-role: 'user' | 'admin';
+    @Prop({ default: 'user' })
+  role: 'user' | 'admin';
+  @Prop()
+resetToken?: string;
+  @Prop()
+  resetTokenExpiry?: Date;
 }
 export const UserSchema = SchemaFactory.createForClass(User)

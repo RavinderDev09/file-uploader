@@ -39,7 +39,6 @@ export class FileController {
     const results = [];
     for (const file of files) {
       const userId = req.user.userId;
-      console.log('userId', userId);
             const result = await this.fileService.uploadFile(file, userId);
       results.push(result);
     }
@@ -58,9 +57,7 @@ async viewOrDownloadFile(
   @Param('uuid') uuid: string,
   @Query('download') download: string,
   @Res() res: Response,
-): Promise<void> {
-  console.log('downloadAnd View ', download, uuid);
-  
+): Promise<void> {  
   return this.fileService.viewOrDownloadFile(uuid, download,res);
 }
 
@@ -78,7 +75,6 @@ async deleteFile(@Param('uuid') uuid: string) {
 async getUserFiles(@Req() req: RequestWithUser) {
   const userId = req.user.userId;
   const role = req.user.role;
-  console.log('REQ.USER =', req.user);
       if (role === 'admin') {
     // Admin => return all files
     return this.fileService.listAllFiles(); // No filter
