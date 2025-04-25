@@ -5,6 +5,8 @@ import { UploadService } from './file-sharing.service';
 import { FileSchema,File } from './schema/file-sharing.schema';
 import { FileController } from './file-sharing.controller';
 import * as multer from 'multer';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports:[
@@ -14,6 +16,6 @@ import * as multer from 'multer';
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
     ],
   controllers: [FileController],
-  providers: [UploadService],
+  providers: [UploadService,JwtAuthGuard, JwtService],
 })
 export class FileSharingModule {}

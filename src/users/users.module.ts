@@ -12,7 +12,7 @@ import { PassportModule } from '@nestjs/passport';
     MongooseModule.forFeature([{name:User.name, schema:UserSchema}]),
     PassportModule,
     JwtModule.register({
-      secret: 'hello@1234',
+      secret: 'hello',
       signOptions: { expiresIn: '1d' },
     }),
 

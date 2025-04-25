@@ -27,7 +27,8 @@ export class FileController {
   constructor(private readonly fileService: UploadService) {}
 
   @Post('upload')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFile(
     @UploadedFiles() files: Express.Multer.File[], @Req() req: RequestWithUser
@@ -73,28 +74,20 @@ async deleteFile(@Param('uuid') uuid: string) {
 
 
 @Get('files')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard('jwt'))
 async getUserFiles(@Req() req: RequestWithUser) {
   const userId = req.user.userId;
   const role = req.user.role;
-
-  if (role === 'admin') {
+  console.log('REQ.USER =', req.user);
+      if (role === 'admin') {
     // Admin => return all files
     return this.fileService.listAllFiles(); // No filter
   }
-
   // Regular user => return only their files
   return this.fileService.listAllFiles(userId); // Filter by userId
 }
 
-  // @Get('files')
-  // @UseGuards(JwtAuthGuard)
-  // async getUserFiles(@Req() req: RequestWithUser) {
-  //   console.log('fileUserId ddd', req.user.userId);
-    
-  //   const userId = req.user.userId;
-  //   return this.fileService.listAllFiles(userId);
-  // }
+
 
 
 }

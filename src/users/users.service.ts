@@ -5,6 +5,8 @@ import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { log } from 'console';
+import { resourceLimits } from 'worker_threads';
 
 
 @Injectable()
@@ -88,6 +90,14 @@ export class UsersService {
         };
       }
     
+
+async findUserById(userId:string){
+  const resut = await this.userModel.findOne({_id: new Types.ObjectId(userId)})
+  console.log('result', resut);
+  
+  return resut
+}
+
 }
 
 
