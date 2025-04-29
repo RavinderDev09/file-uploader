@@ -5,3 +5,9 @@ export interface RequestWithUser extends Request {
       role:string;
     };
   }
+
+  export enum USERVERIFIEDSTATUS{
+    true='true',
+    false='false',
+    compelete='compelete'
+  }

@@ -2,141 +2,235 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login / Signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       background-color: #f7f7f7;
+      padding: 20px;
     }
+
     .form-container {
       max-width: 400px;
       margin: auto;
       background: #fff;
       padding: 25px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    input, button {
+
+    input,
+    button {
       display: block;
       width: 100%;
       padding: 10px;
       margin: 12px 0;
       font-size: 16px;
     }
+
     button {
       background-color: #007bff;
       color: white;
       border: none;
       cursor: pointer;
     }
+
     button:disabled {
       background-color: #999;
     }
+
     #toggle {
       cursor: pointer;
       color: #007bff;
       text-align: center;
       margin-top: 15px;
     }
+
     .error-message {
       color: red;
       text-align: center;
+    }
+
+    .info-message {
+      color: green;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
 
   <div class="form-container">
-    <h2 id="form-title">Login</h2>
+    <h2 id="form-title">Signup</h2>
     <form id="authForm">
-      <input type="text" id="name" placeholder="Name" style="display:none" />
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <input type="password" id="confirmPassword" placeholder="Confirm Password" style="display:none" />
-      <button type="submit" id="submitBtn">Login</button>
+      <input type="email" id="email" name="email" placeholder="Email" required />
+      <button type="button" id="sendOtpBtn">Send OTP</button>
+
+      <!-- OTP Verification Section -->
+      <div id="otpSection" class="hidden">
+        <input type="text" id="otp" name="otp" placeholder="Enter OTP" required />
+        <button type="button" id="verifyOtpBtn">Verify OTP</button>
+      </div>
+
+      <!-- Finalize Signup Section -->
+      <div id="signupSection" class="hidden">
+        <input type="text" id="name" name="name" placeholder="Name" required />
+        <input type="password" id="password" name="password" placeholder="Password" required />
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required />
+        <button type="submit" id="finalizeSignupBtn">Complete Signup</button>
+      </div>
     </form>
-    <div id="toggle">Don't have an account? Signup</div>
     <div class="error-message" id="errorMsg"></div>
+    <div class="info-message" id="infoMsg"></div>
   </div>
 
   <script>
     const form = document.getElementById('authForm');
-    const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
+    const otpInput = document.getElementById('otp');
+    const nameInput = document.getElementById('name');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
-    const submitBtn = document.getElementById('submitBtn');
-    const formTitle = document.getElementById('form-title');
-    const toggleText = document.getElementById('toggle');
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const finalizeSignupBtn = document.getElementById('finalizeSignupBtn');
+    const otpSection = document.getElementById('otpSection');
+    const signupSection = document.getElementById('signupSection');
     const errorMsg = document.getElementById('errorMsg');
+    const infoMsg = document.getElementById('infoMsg');
 
-    let isLogin = true;
+    let email = '';
+    let isOtpVerified = false;
 
-    toggleText.addEventListener('click', () => {
-      isLogin = !isLogin;
-
-      formTitle.textContent = isLogin ? 'Login' : 'Signup';
-      submitBtn.textContent = isLogin ? 'Login' : 'Signup';
-      toggleText.textContent = isLogin
-        ? "Don't have an account? Signup"
-        : "Already have an account? Login";
-
-      // Toggle input visibility
-      nameInput.style.display = isLogin ? 'none' : 'block';
-      confirmPasswordInput.style.display = isLogin ? 'none' : 'block';
-
-      // Clear previous errors
-      errorMsg.textContent = '';
-      form.reset();
-    });
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      const name = nameInput.value.trim();
-      const confirmPassword = confirmPasswordInput.value.trim();
-
-      errorMsg.textContent = '';
-
-      if (!email || !password || (!isLogin && (!name || !confirmPassword))) {
-        errorMsg.textContent = 'Please fill in all fields.';
-        return;
-      }
-
-      if (!isLogin && password !== confirmPassword) {
-        errorMsg.textContent = 'Passwords do not match.';
+    // Send OTP to email
+    sendOtpBtn.addEventListener('click', async () => {
+      email = emailInput.value.trim();
+      if (!email) {
+        errorMsg.textContent = 'Please provide a valid email.';
         return;
       }
 
       try {
-        const payload = isLogin
-          ? { email, password }
-          : { name, email, password, confirmPassword };
+        errorMsg.textContent = '';
+        infoMsg.textContent = 'Sending OTP...';
+        sendOtpBtn.disabled = true;
 
-        const response = await fetch(isLogin ? 'http://localhost:5000/users/login' : 'http://localhost:5000/users/create', {
+        const response = await fetch('http://localhost:5000/users/signup-otp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ email }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          errorMsg.textContent = data.message || 'Something went wrong.';
+          errorMsg.textContent = data.message || 'Error sending OTP.';
+          sendOtpBtn.disabled = false;
+          infoMsg.textContent = '';
           return;
         }
 
-        localStorage.setItem('token', data.accessToken);
-        window.location.href = 'index.html';
+        infoMsg.textContent = 'OTP sent to email. Please verify.';
+        sendOtpBtn.disabled = true;
+        otpSection.classList.remove('hidden');
       } catch (err) {
         console.error(err);
         errorMsg.textContent = 'Server error. Please try again.';
+        sendOtpBtn.disabled = false;
+        infoMsg.textContent = '';
+      }
+    });
+
+    // Verify OTP
+    verifyOtpBtn.addEventListener('click', async () => {
+      const otp = otpInput.value.trim();
+
+      if (!otp) {
+        errorMsg.textContent = 'Please enter the OTP.';
+        return;
+      }
+
+      try {
+        errorMsg.textContent = '';
+        infoMsg.textContent = 'Verifying OTP...';
+
+        const response = await fetch('http://localhost:5000/users/verify-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, otp }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorMsg.textContent = data.message || 'Invalid OTP.';
+          infoMsg.textContent = '';
+          return;
+        }
+
+        infoMsg.textContent = 'OTP verified successfully. Please complete your signup.';
+        otpSection.classList.add('hidden');
+        signupSection.classList.remove('hidden');
+        isOtpVerified = true;
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = 'Server error. Please try again.';
+        infoMsg.textContent = '';
+      }
+    });
+
+    // Finalize Signup
+    finalizeSignupBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const password = passwordInput.value.trim();
+      const confirmPassword = confirmPasswordInput.value.trim();
+
+      if (!name || !password || password !== confirmPassword) {
+        errorMsg.textContent = 'Please fill in all fields and ensure passwords match.';
+        return;
+      }
+
+      try {
+        errorMsg.textContent = '';
+        infoMsg.textContent = 'Completing Signup...';
+        finalizeSignupBtn.disabled = true;
+
+        const response = await fetch('http://localhost:5000/users/signup-complete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await response.json();
+        console.log('datasingup', data);
+        
+
+        if (!response.ok) {
+          errorMsg.textContent = data.message || 'Error completing signup.';
+          finalizeSignupBtn.disabled = false;
+          infoMsg.textContent = '';
+          return;
+        }
+
+        infoMsg.textContent = 'Signup completed successfully. Redirecting to login...';
+        setTimeout(() => {
+          window.location.href = 'login.html'; // Redirect to login page
+        }, 2000);
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = 'Server error. Please try again.';
+        finalizeSignupBtn.disabled = false;
+        infoMsg.textContent = '';
       }
     });
   </script>

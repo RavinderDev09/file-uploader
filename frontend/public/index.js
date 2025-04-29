@@ -83,7 +83,7 @@ uploadBtn.addEventListener('click', async () => {
 
 async function loadFiles() {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     const res = await fetch('http://localhost:5000/api/files/files', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -110,29 +110,41 @@ async function loadFiles() {
       const card = document.createElement('div');
       card.className = 'file-card';
 
+      const uploader = file.userId ? `<p class="uploader">👤 <strong>${file.userId.name}</strong> (${file.userId.email})</p>` : '';
+
       const info = document.createElement('div');
       info.className = 'file-info';
-      info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
+      info.innerHTML = `
+        <strong>${file.originalName}</strong>
+        <p>${(file.size / 1024).toFixed(2)} KB</p>
+        ${uploader}
+      `;
 
       const preview = document.createElement('div');
       preview.className = 'preview';
-      const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
 
+      // ✅ Define publicUrl before use
+      const publicUrl = `http://localhost:5000/api/files/public/${file.uuid}`;
+
+      // ✅ File preview using public URL
       if (file.contentType.startsWith('image/')) {
-        preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
+        preview.innerHTML = `<img src="${publicUrl}" alt="Image preview" />`;
       } else if (file.contentType.startsWith('video/')) {
-        preview.innerHTML = `<video src="${fileUrl}" controls></video>`;
+        preview.innerHTML = `<video src="${publicUrl}" controls></video>`;
       } else if (file.contentType.startsWith('audio/')) {
-        preview.innerHTML = `<audio src="${fileUrl}" controls></audio>`;
+        preview.innerHTML = `<audio src="${publicUrl}" controls></audio>`;
       } else if (file.contentType === 'application/pdf') {
-        preview.innerHTML = `<a href="${fileUrl}" target="_blank">Preview PDF</a>`;
+        preview.innerHTML = `<a href="${publicUrl}" target="_blank">Preview PDF</a>`;
+      } else {
+        preview.innerHTML = `<a href="${publicUrl}" target="_blank">View File</a>`;
       }
 
+      // ✅ Action buttons with public URL
       const actions = document.createElement('div');
       actions.className = 'file-actions';
       actions.innerHTML = `
-        <button class="btn-copy" onclick="copyToClipboard('${fileUrl}')">Copy URL</button>
-        <a href="${fileUrl}?download=true" class="btn-download">Download</a>
+        <button class="btn-copy" onclick="copyToClipboard('${publicUrl}')">Copy URL</button>
+        <a href="${publicUrl}?download=true" class="btn-download">Download</a>
         <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
       `;
 
@@ -148,6 +160,8 @@ async function loadFiles() {
   }
 }
 
+
+
 // ✅ Helper Function: Copy to Clipboard
 function copyToClipboard(url) {
   navigator.clipboard.writeText(url)
@@ -156,53 +170,40 @@ function copyToClipboard(url) {
 }
 
 
-// Function to delete a file
 async function deleteFile(uuid) {
-try {
-const res = await fetch(`http://localhost:5000/api/files/${uuid}`, {
-  method: 'DELETE',
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
-});
+  const token = localStorage.getItem('accessToken');
+console.log('deletedftoekfdk', token);
 
-if (res.ok) {
-  alert('File deleted successfully!');
-  loadFiles(); // Reload files after deletion
-} else {
-  const errorText = await res.text();
-  alert('Delete failed: ' + errorText);
-}
-} catch (err) {
-console.error('Failed to delete file:', err);
-alert('Delete failed: Network error or server issue.');
-}
-}
-
-// Load files when the page loads
-loadFiles();
-
-
-async function deleteFile(uuid) {
   try {
-    await fetch(`http://localhost:5000/api/files/delete/${uuid}`, { method: 'DELETE' ,headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },});
-    loadFiles();
-  } catch (err) {
-    console.error('Failed to delete file:', err);
-    alert('Delete failed.');
+  const res = await fetch(`http://localhost:5000/api/files/delete/${uuid}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  
+  if (res.ok) {
+    alert('File deleted successfully!');
+    loadFiles(); // Reload files after deletion
+  } else {
+    const errorText = await res.text();
+    alert('Delete failed: ' + errorText);
   }
-}
+  } catch (err) {
+  console.error('Failed to delete file:', err);
+  alert('Delete failed: Network error or server issue.');
+  }
+  }
+  
+  // Load files when the page loads
+  loadFiles();
 
-// Load files on page load
-loadFiles();
+const token = localStorage.getItem("accessToken");
 
-const token = localStorage.getItem("token");
 
 // Token nahi mila? Redirect to login
 if (!token) {
-window.location.href = "auth.html"; // ya jo bhi login page ka naam hai
+window.location.href = "welcome.html"; // ya jo bhi login page ka naam hai
 }    
 
 
@@ -210,7 +211,7 @@ window.location.href = "auth.html"; // ya jo bhi login page ka naam hai
 let currentUserEmail = null; // store fetched user email globally
 
 async function fetchUserProfile() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   if (!token) {
     alert("No token found. Please login again.");
     return;
@@ -243,10 +244,10 @@ async function fetchUserProfile() {
 }
 
 function logout() {
-  localStorage.removeItem('authToken');
+  localStorage.removeItem('accessToken');
   alert('Logged out successfully!');
   document.getElementById('profileSection').style.display = 'none';
-  window.location.href = '/auth.html';
+  window.location.href = '/welcome.html';
 }
 
 function toggleProfileSection() {

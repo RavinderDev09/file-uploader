@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User, UserDocument } from './schema/user.schema';
-import { CreateUserDto, LoginUserDto } from './dto/user.dto';
+import { CreateUserDto, LoginUserDto, SignupCompleteDto } from './dto/user.dto';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -8,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import { resourceLimits } from 'worker_threads';
 import { EmailService } from 'src/email-service/email-service.service';
+import { SignupOtpDto, VerifyOtpDto } from './dto/auth.dto';
+import { USERVERIFIEDSTATUS } from './comman/comman';
 
 
 @Injectable()
@@ -25,22 +27,22 @@ export class UsersService {
         const userEmailOrPhone = await this.userModel.findOne({
           email:data.email,
         });
-        if (userEmailOrPhone) {
-          throw new InternalServerErrorException('Email already taken.');
-        }
-        const userExists = await this.userModel.findOne({
-          name: data.name,
-        });
-        if (userExists) {
-          throw new InternalServerErrorException('Username already taken.');
-        }
+        // if (userEmailOrPhone) {
+        //   throw new InternalServerErrorException('Email already taken.');
+        // }
+        // const userExists = await this.userModel.findOne({
+        //   name: data.name,
+        // });
+        // if (userExists) {
+        //   throw new InternalServerErrorException('Username already taken.');
+        // }
         const { password, confirmPassword } = data;
         if (password !== confirmPassword) {
           throw new InternalServerErrorException('Passwords do not match');
         }
     
         const hashedPassword = await bcrypt.hash(password, 10);
-        const result = await this.userModel.create({
+        const result = await this.userModel.findOneAndUpdate({
           ...data,
           password: hashedPassword,
           confirmPassword: hashedPassword,
@@ -88,7 +90,9 @@ export class UsersService {
 
       //forgot and reset password methods
       async forgotPassword(email: string): Promise<string> {
-        const user = await this.userModel.findOne({ email });
+        const user = await this.userModel.findOne({ email:email });
+        console.log('email', user);
+        
         if (!user) throw new NotFoundException('User not found');
     
         const token = crypto.randomBytes(32).toString('hex');
@@ -121,11 +125,95 @@ export class UsersService {
     
         return 'Password reset successful';
       }
+
+
+      //
+      async signupOtp(signupDto: SignupOtpDto) {
+        const user = await this.userModel.findOne({ email: signupDto.email });
+        console.log('user', user);
+        
+        if (user && user.isVerified ===USERVERIFIEDSTATUS.compelete) {
+          throw new BadRequestException('Email already verified.');
+        }
+      
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+        console.log('opt', otpExpires,otp);
+        
+      
+        if (user) {
+          await this.userModel.findOneAndUpdate(
+            { email: signupDto.email },
+            { otp, otpExpires },
+            { new: true }
+          );
+        } else {
+          await this.userModel.create({
+            email: signupDto.email,
+            otp,
+            otpExpires,
+            isVerified: false,
+          });
+        }
+      
+        // await this.mailService.sendOtp(signupDto.email, otp);
+        return { message: 'OTP sent to email' };
+      }
+      
+    
+      async verifyOtp(dto: VerifyOtpDto) {
+        console.log('verify Otp', dto);
+        
+        // Ensure email is provided and user exists
+        const user = await this.userModel.findOne({ email: dto.email });
+        if (!user || user.otp !== dto.otp || user.otpExpires < new Date()) {
+          throw new UnauthorizedException('Invalid or expired OTP');
+        }
+      
+        // If OTP is valid, mark the user as verified and clear OTP fields
+        await this.userModel.findOneAndUpdate({ email: dto.email }, {
+          otp: null,        // Clear OTP after successful verification
+          otpExpires: null, // Clear OTP expiration
+          isVerified: true, // Mark user as verified
+        });
+      
+        return { message: 'Email verified successfully' };
+      }
+      
+
+      async signupComplete(data: SignupCompleteDto): Promise<any> {
+        const { email, name, password } = data;
+    
+        // Find user by email (after OTP verification)
+        const user = await this.userModel.findOne({ email });
+    
+        if (!user) {
+          throw new InternalServerErrorException('User not found');
+        }
+    
+        // Check if user is already verified
+        if (user.isVerified== USERVERIFIEDSTATUS.compelete) {
+          throw new InternalServerErrorException('User is already verified');
+        }
+    
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+    
+        // Update the user’s record
+        user.name = name;
+        user.password = hashedPassword;
+        user.isVerified = USERVERIFIEDSTATUS.compelete; // Mark user as verified after completing signup
+    
+        // Save updated user
+        await user.save();
+    
+        return { message: 'Signup completed successfully. You can now login.' };
+      }
     
 
-async findUserById(userId:string){
-  const resut = await this.userModel.findOne({_id: new Types.ObjectId(userId)}) 
-  return resut
+     async findUserById(userId:string){
+     const resut = await this.userModel.findOne({_id: new Types.ObjectId(userId)}) 
+      return resut
 }
 
 }

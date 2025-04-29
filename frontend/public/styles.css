@@ -80,6 +80,30 @@ body {
     color: white;
   }
 
+  .btn-copy {
+    background-color: #f0ad4e;
+    border: none;
+    padding: 6px 10px;
+    color: white;
+    border-radius: 5px;
+    margin-right: 8px;
+    cursor: pointer;
+  }
+  
+  .file-card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: #f9f9f9;
+  }
+  
+  .file-info .uploader {
+    color: #555;
+    font-size: 0.9rem;
+    margin-top: 5px;
+  }
+
    /* Profile Button */
    .profile-button {
     position: fixed;

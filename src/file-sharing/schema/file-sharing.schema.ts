@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document, ObjectId, Types } from 'mongoose';
 
 export type FileDocument = File & Document;
+
 
 @Schema({ timestamps: true })
 export class File {
@@ -25,8 +26,9 @@ export class File {
   expiryAt:string
   @Prop()
   mimetype: string; 
-  @Prop()
-  userId: string; 
+  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'User'})
+  userId: string
 }
 
 export const FileSchema = SchemaFactory.createForClass(File);
+mongoose.set('strictPopulate', false);

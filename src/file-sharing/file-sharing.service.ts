@@ -58,7 +58,7 @@ export class UploadService {
           filename: uploadStream.id, // ✅ Use this
           size: buffer.length,
           contentType: mimetype,
-          userId:userId
+          userId:userId,
         });
   
         resolve({ message: 'File uploaded', uuid });
@@ -95,8 +95,7 @@ export class UploadService {
       res.setHeader('Content-Disposition', 'inline');
       res.set({
         'Content-Type': fileDoc.contentType || 'application/octet-stream',
-        // 'Content-Disposition':'inline',
-        'Content-Disposition': `attachment; filename="${encodeURIComponent(fileDoc.originalName)}"`,
+        'Content-Disposition':'inline',
         'Content-Length': fileDoc.size.toString(),        
       });
   
@@ -123,55 +122,57 @@ export class UploadService {
 
 
 
-async viewOrDownloadFile( uuid: string, download: string, res: Response,): Promise<void> {
-  try {
-    const fileDoc = await this.fileModel.findOne({ uuid });
-    if (!fileDoc) throw new NotFoundException('File not found');
-
-    if (fileDoc.expiresAt && fileDoc.expiresAt < new Date()) {
-      throw new GoneException('Link has expired');
+  async viewOrDownloadFile( uuid: string, download: string, res: Response,): Promise<void> {
+    try {
+      const fileDoc = await this.fileModel.findOne({ uuid });
+      if (!fileDoc) throw new NotFoundException('File not found');
+  
+      if (fileDoc.expiresAt && fileDoc.expiresAt < new Date()) {
+        throw new GoneException('Link has expired');
+      }
+  
+      const fileObjectId = new mongoose.Types.ObjectId(fileDoc.filename);
+      const downloadStream = this.gridFSBucket.openDownloadStream(fileObjectId);
+  
+      const contentType = fileDoc.contentType || 'application/octet-stream';
+      const isDownload = download === 'true';
+  
+      res.setHeader('Content-Type', contentType);
+      res.setHeader(
+        'Content-Disposition',
+        isDownload
+          ? `attachment; filename="${encodeURIComponent(fileDoc.originalName)}"`
+          : 'inline'
+      );
+  
+      downloadStream
+        .on('error', (err) => {
+          console.error('File stream error:', err);
+          if (!res.headersSent) res.status(500).send('Error streaming file');
+        })
+        .pipe(res);
+    } catch (err) {
+      console.error('View/Download error:', err);
+      if (!res.headersSent) res.status(500).send('Internal Server Error');
     }
-
-    const fileObjectId = new mongoose.Types.ObjectId(fileDoc.filename);
-    const downloadStream = this.gridFSBucket.openDownloadStream(fileObjectId);
-
-    const contentType = fileDoc.contentType || 'application/octet-stream';
-    const isDownload = download === 'true';
-
-    res.setHeader('Content-Type', contentType);
-    res.setHeader(
-      'Content-Disposition',
-      isDownload
-        ? `attachment; filename="${encodeURIComponent(fileDoc.originalName)}"`
-        : 'inline'
-    );
-
-    downloadStream
-      .on('error', (err) => {
-        console.error('File stream error:', err);
-        if (!res.headersSent) res.status(500).send('Error streaming file');
-      })
-      .pipe(res);
-  } catch (err) {
-    console.error('View/Download error:', err);
-    if (!res.headersSent) res.status(500).send('Internal Server Error');
   }
-}
+
+
 
 
 
   async deleteFile(uuid: string): Promise<void> {
     const file = await this.getFileByUuid(uuid);
     const fileId = new Types.ObjectId(file.filename);
+console.log('filede', file);
 
     await this.gridFSBucket.delete(fileId);
-    await this.fileModel.deleteOne({ uuid });
+    await this.fileModel.deleteOne({ uuid });   
   }
 
   async listAllFiles(userId?:string): Promise<any[]> {
-  
     if(userId){
-      const files = await this.fileModel.find({userId:userId});
+      const files = await this.fileModel.find({userId:userId})// In your service      
       return files.map((file) => ({
         originalName: file.originalName,
         size: file.size,
@@ -181,7 +182,9 @@ async viewOrDownloadFile( uuid: string, download: string, res: Response,): Promi
         contentType:file.contentType  
       }));
     }else {
-      return this.fileModel.find().lean(); // All files
+      // return this.fileModel.find().lean(); // All files
+      return await this.fileModel.find().populate('userId', 'name email').sort({ createdAt: -1 });
+
     }
    
   }

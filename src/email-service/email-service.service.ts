@@ -29,4 +29,21 @@ export class EmailService {
 
     return await this.mailerService.sendMail(mailOptions);
   }
+
+
+  //
+
+  async sendOtp(email: string, otp: string) {
+    console.log('emailDAta', email, otp);    
+    const mailOptions = {
+      ffrom: '"Secure Auth" <your.email@gmail.com>',
+      to: email,
+      subject: 'Verify your email - OTP',
+      html: `<h3>Your OTP is: <b>${otp}</b></h3>`
+    };
+
+    return await this.mailerService.sendMail(mailOptions);
+  }
+
+  
 }

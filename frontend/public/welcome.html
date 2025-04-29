@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Your Website</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f1f1f1;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .header {
+      background-color: #007bff;
+      color: white;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-size: 36px;
+    }
+
+    .container {
+      text-align: center;
+      padding: 50px 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 600px;
+      margin-top: 30px;
+    }
+
+    .container h2 {
+      font-size: 30px;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+
+    .container p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .cta-button {
+      padding: 12px 25px;
+      font-size: 18px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      display: inline-block;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #0056b3;
+    }
+
+    .footer {
+      margin-top: 50px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Your Website Name</h1>
+  </div>
+
+  <!-- Main Content Section -->
+  <div class="container">
+    <h2>Welcome to Our Website!</h2>
+    <p>
+      We're glad to have you here. Explore our services, sign up for an account, or log in to get started.
+      We offer amazing features that will help you get the most out of your experience.
+    </p>
+    
+    <a href="auth.html" class="cta-button">Sign Up</a>
+    <a href="login.html" class="cta-button">Login</a>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer">
+    <p>&copy; 2025 Your Website Name. <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+  </div>
+
+</body>
+</html>

@@ -14,6 +14,8 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -21,6 +23,8 @@ import { UploadService } from './file-sharing.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RequestWithUser } from 'src/users/comman/comman';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
+import mongoose, { Types } from 'mongoose';
+import { equals } from 'class-validator';
 
 @Controller('api/files')
 export class FileController {
@@ -45,28 +49,54 @@ export class FileController {
     return { message: 'Files uploaded', files: results };
   }
 
-  @Get('download/:uuid')
-  @UseGuards(JwtAuthGuard)
+  @Get('public/:uuid')
 async download(@Param('uuid') uuid: string, @Res({ passthrough: false }) res: Response) {
-  return this.fileService.downloadFile(uuid, res);
+  const download = "false"
+  return this.fileService.viewOrDownloadFile(uuid,download, res);
 }
 
+
 @Get('view/:uuid')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard('jwt'))
 async viewOrDownloadFile(
   @Param('uuid') uuid: string,
   @Query('download') download: string,
   @Res() res: Response,
-): Promise<void> {  
-  return this.fileService.viewOrDownloadFile(uuid, download,res);
+  @Req() req
+): Promise<any> {  
+  const userId = new mongoose.Types.ObjectId(req.user.userId); 
+  const uiFind = await this.fileService.getFileByUuid(uuid)
+  if(req.user.role === 'admin'){
+    return this.fileService.viewOrDownloadFile(uuid, download, res);
+  } else if (req.user.role === 'user' && userId.equals(uiFind.userId)) {
+    return this.fileService.viewOrDownloadFile(uuid, download, res);
+  }
+  else{
+    throw new ForbiddenException('You are not allowed to delete this file')
+  }
 }
 
+
 @Delete('delete/:uuid')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard('jwt'))
 @HttpCode(204)
-async deleteFile(@Param('uuid') uuid: string) {
-  return this.fileService.deleteFile(uuid);
+async deleteFile(@Param('uuid') uuid: string, @Req() req) {
+  const userId = new mongoose.Types.ObjectId(req.user.userId); // JWT se user ID milta hai
+  const file = await this.fileService.getFileByUuid(uuid);
+
+  if (req.user.role ==='admin') {
+    console.log('admin');
+    return this.fileService.deleteFile(uuid);
+  }else if (req.user.role=== 'user'&& userId.equals(file.userId) ) {
+    console.log('user');
+    return this.fileService.deleteFile(uuid);
+  }
+  else{
+    throw new ForbiddenException('You are not allowed to delete this file')
+  }
+ 
 }
+
 
 
 
@@ -74,10 +104,11 @@ async deleteFile(@Param('uuid') uuid: string) {
 @UseGuards(AuthGuard('jwt'))
 async getUserFiles(@Req() req: RequestWithUser) {
   const userId = req.user.userId;
-  const role = req.user.role;
+  const role = req.user.role;    
       if (role === 'admin') {
     // Admin => return all files
-    return this.fileService.listAllFiles(); // No filter
+    return await this.fileService.listAllFiles(); // No filter
+    
   }
   // Regular user => return only their files
   return this.fileService.listAllFiles(userId); // Filter by userId

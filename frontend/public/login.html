@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.error-msg {
+  color: red;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+a {
+  color: #4caf50;
+  text-decoration: none;
+}
+
+  </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required />
+          </div>
+          <div class="form-group">
+            <button type="submit" id="login-btn">Login</button>
+          </div>
+          <div id="error-msg" class="error-msg"></div>
+        </form>
+        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+        <button id="forgot-password-btn" class="forgot-password-btn">Forgot Password?</button> <!-- Forgot password button -->
+    </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      const errorMsg = document.getElementById('error-msg');
+
+      // Input validation
+      if (!email || !password) {
+        errorMsg.textContent = 'Please fill in all fields';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorMsg.textContent = data.message || 'Login failed. Please try again.';
+          return;
+        }
+
+        // Save token in localStorage
+        localStorage.setItem('accessToken', data.accessToken); // Save the token
+
+        // If login is successful, redirect to the homepage or dashboard
+        window.location.href = 'index.html'; // Redirect to the dashboard after successful login
+
+      } catch (error) {
+        console.error('Error:', error);
+        errorMsg.textContent = 'An error occurred. Please try again later.';
+      }
+    });
+
+    // Forgot Password button handler
+    document.getElementById('forgot-password-btn').addEventListener('click', function () {
+      window.location.href = 'forgot-password.html'; // Redirect to the forgot password page
+    });
+  </script>
+</body>
+</html>
