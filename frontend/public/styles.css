@@ -57,6 +57,8 @@ body {
     flex: 1;
     margin-right: 15px;
   }
+
+
   .preview img,
   .preview video {
     max-height: 80px;

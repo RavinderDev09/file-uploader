@@ -1,94 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Signup</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | FileShare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --error: #f72585;
+      --success: #4cc9f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
+      background: linear-gradient(135deg, #f5f7ff, #e6ebff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding: 20px;
     }
 
-    .form-container {
-      max-width: 400px;
-      margin: auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    input,
-    button {
-      display: block;
+    .signup-container {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(67, 97, 238, 0.15);
       width: 100%;
-      padding: 10px;
-      margin: 12px 0;
-      font-size: 16px;
+      max-width: 500px;
+      padding: 40px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
     }
 
-    button {
-      background-color: #007bff;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      color: var(--dark);
+    }
+
+    .logo i {
+      color: var(--accent);
+    }
+
+    .signup-container h2 {
+      margin-bottom: 30px;
+      color: var(--dark);
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 20px 14px 45px;
+      border: 2px solid #e0e5ff;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+      background-color: #f9faff;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
       color: white;
       border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
     }
 
-    button:disabled {
-      background-color: #999;
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(67, 97, 238, 0.2);
     }
 
-    #toggle {
-      cursor: pointer;
-      color: #007bff;
-      text-align: center;
-      margin-top: 15px;
+    .btn-action:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
 
     .error-message {
-      color: red;
+      color: var(--error);
+      margin: 15px 0;
+      font-size: 14px;
       text-align: center;
     }
 
     .info-message {
-      color: green;
+      color: var(--success);
+      margin: 15px 0;
+      font-size: 14px;
       text-align: center;
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .progress-steps::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: #e0e5ff;
+      z-index: 1;
+    }
+
+    .step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #e0e5ff;
+      color: #777;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step.active .step-number {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .step.completed .step-number {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .step-text {
+      font-size: 12px;
+      color: #777;
+      font-weight: 500;
+    }
+
+    .step.active .step-text {
+      color: var(--primary);
+    }
+
+    .step.completed .step-text {
+      color: var(--success);
     }
 
     .hidden {
       display: none;
     }
+
+    .login-link {
+      margin-top: 20px;
+      color: #777;
+    }
+
+    .login-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+      .signup-container {
+        padding: 30px 20px;
+      }
+      
+      .form-group input {
+        padding: 12px 15px 12px 40px;
+      }
+      
+      .input-icon {
+        left: 12px;
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <div class="form-container">
-    <h2 id="form-title">Signup</h2>
+  <div class="signup-container">
+    <div class="logo">
+      <i class="fas fa-paper-plane"></i>
+      <span>FileShare</span>
+    </div>
+    <h2>Create Your Account</h2>
+    
+    <div class="progress-steps">
+      <div class="step active" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-text">Email Verification</div>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-text">OTP Verification</div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-text">Complete Profile</div>
+      </div>
+    </div>
+    
     <form id="authForm">
-      <input type="email" id="email" name="email" placeholder="Email" required />
-      <button type="button" id="sendOtpBtn">Send OTP</button>
-
+      <!-- Email Verification Section -->
+      <div id="emailSection">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-wrapper">
+            <i class="fas fa-envelope input-icon"></i>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required />
+          </div>
+        </div>
+        <button type="button" class="btn-action" id="sendOtpBtn">
+          <span id="sendOtpText">Send Verification Code</span>
+          <span id="sendOtpSpinner" class="hidden"><i class="fas fa-spinner fa-spin"></i></span>
+        </button>
+      </div>
+      
       <!-- OTP Verification Section -->
       <div id="otpSection" class="hidden">
-        <input type="text" id="otp" name="otp" placeholder="Enter OTP" required />
-        <button type="button" id="verifyOtpBtn">Verify OTP</button>
+        <div class="form-group">
+          <label for="otp">Verification Code</label>
+          <div class="input-wrapper">
+            <i class="fas fa-shield-alt input-icon"></i>
+            <input type="text" id="otp" name="otp" placeholder="Enter 6-digit code" required maxlength="6" />
+          </div>
+        </div>
+        <button type="button" class="btn-action" id="verifyOtpBtn">
+          <span id="verifyOtpText">Verify Code</span>
+          <span id="verifyOtpSpinner" class="hidden"><i class="fas fa-spinner fa-spin"></i></span>
+        </button>
       </div>
-
-      <!-- Finalize Signup Section -->
+      
+      <!-- Complete Profile Section -->
       <div id="signupSection" class="hidden">
-        <input type="text" id="name" name="name" placeholder="Name" required />
-        <input type="password" id="password" name="password" placeholder="Password" required />
-        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required />
-        <button type="submit" id="finalizeSignupBtn">Complete Signup</button>
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user input-icon"></i>
+            <input type="text" id="name" name="name" placeholder="Your name" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="password" name="password" placeholder="Create password" required minlength="8" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required />
+          </div>
+        </div>
+        <button type="button" class="btn-action" id="finalizeSignupBtn">
+          <span id="finalizeSignupText">Create Account</span>
+          <span id="finalizeSignupSpinner" class="hidden"><i class="fas fa-spinner fa-spin"></i></span>
+        </button>
       </div>
     </form>
+    
     <div class="error-message" id="errorMsg"></div>
     <div class="info-message" id="infoMsg"></div>
+    
+    <div class="login-link">
+      Already have an account? <a href="login.html">Log in</a>
+    </div>
   </div>
 
   <script>
+    // DOM Elements
     const form = document.getElementById('authForm');
     const emailInput = document.getElementById('email');
     const otpInput = document.getElementById('otp');
@@ -98,26 +352,52 @@
     const sendOtpBtn = document.getElementById('sendOtpBtn');
     const verifyOtpBtn = document.getElementById('verifyOtpBtn');
     const finalizeSignupBtn = document.getElementById('finalizeSignupBtn');
+    const emailSection = document.getElementById('emailSection');
     const otpSection = document.getElementById('otpSection');
     const signupSection = document.getElementById('signupSection');
     const errorMsg = document.getElementById('errorMsg');
     const infoMsg = document.getElementById('infoMsg');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    
+    // Spinner elements
+    const sendOtpText = document.getElementById('sendOtpText');
+    const sendOtpSpinner = document.getElementById('sendOtpSpinner');
+    const verifyOtpText = document.getElementById('verifyOtpText');
+    const verifyOtpSpinner = document.getElementById('verifyOtpSpinner');
+    const finalizeSignupText = document.getElementById('finalizeSignupText');
+    const finalizeSignupSpinner = document.getElementById('finalizeSignupSpinner');
 
     let email = '';
     let isOtpVerified = false;
+
+    // Helper function to show loading state
+    function showLoading(button, textElement, spinnerElement) {
+      textElement.classList.add('hidden');
+      spinnerElement.classList.remove('hidden');
+      button.disabled = true;
+    }
+
+    // Helper function to hide loading state
+    function hideLoading(button, textElement, spinnerElement) {
+      textElement.classList.remove('hidden');
+      spinnerElement.classList.add('hidden');
+      button.disabled = false;
+    }
 
     // Send OTP to email
     sendOtpBtn.addEventListener('click', async () => {
       email = emailInput.value.trim();
       if (!email) {
-        errorMsg.textContent = 'Please provide a valid email.';
+        errorMsg.textContent = 'Please provide a valid email address.';
         return;
       }
 
       try {
         errorMsg.textContent = '';
-        infoMsg.textContent = 'Sending OTP...';
-        sendOtpBtn.disabled = true;
+        infoMsg.textContent = '';
+        showLoading(sendOtpBtn, sendOtpText, sendOtpSpinner);
 
         const response = await fetch('http://localhost:5000/users/signup-otp', {
           method: 'POST',
@@ -130,20 +410,22 @@
         const data = await response.json();
 
         if (!response.ok) {
-          errorMsg.textContent = data.message || 'Error sending OTP.';
-          sendOtpBtn.disabled = false;
-          infoMsg.textContent = '';
+          errorMsg.textContent = data.message || 'Error sending verification code. Please try again.';
+          hideLoading(sendOtpBtn, sendOtpText, sendOtpSpinner);
           return;
         }
 
-        infoMsg.textContent = 'OTP sent to email. Please verify.';
-        sendOtpBtn.disabled = true;
+        infoMsg.textContent = 'Verification code sent to your email. Please check your inbox.';
+        emailSection.classList.add('hidden');
         otpSection.classList.remove('hidden');
+        step1.classList.remove('active');
+        step1.classList.add('completed');
+        step2.classList.add('active');
+        hideLoading(sendOtpBtn, sendOtpText, sendOtpSpinner);
       } catch (err) {
         console.error(err);
-        errorMsg.textContent = 'Server error. Please try again.';
-        sendOtpBtn.disabled = false;
-        infoMsg.textContent = '';
+        errorMsg.textContent = 'Network error. Please check your connection and try again.';
+        hideLoading(sendOtpBtn, sendOtpText, sendOtpSpinner);
       }
     });
 
@@ -151,14 +433,15 @@
     verifyOtpBtn.addEventListener('click', async () => {
       const otp = otpInput.value.trim();
 
-      if (!otp) {
-        errorMsg.textContent = 'Please enter the OTP.';
+      if (!otp || otp.length !== 6) {
+        errorMsg.textContent = 'Please enter the 6-digit verification code.';
         return;
       }
 
       try {
         errorMsg.textContent = '';
-        infoMsg.textContent = 'Verifying OTP...';
+        infoMsg.textContent = '';
+        showLoading(verifyOtpBtn, verifyOtpText, verifyOtpSpinner);
 
         const response = await fetch('http://localhost:5000/users/verify-otp', {
           method: 'POST',
@@ -171,19 +454,23 @@
         const data = await response.json();
 
         if (!response.ok) {
-          errorMsg.textContent = data.message || 'Invalid OTP.';
-          infoMsg.textContent = '';
+          errorMsg.textContent = data.message || 'Invalid verification code. Please try again.';
+          hideLoading(verifyOtpBtn, verifyOtpText, verifyOtpSpinner);
           return;
         }
 
-        infoMsg.textContent = 'OTP verified successfully. Please complete your signup.';
+        infoMsg.textContent = 'Email verified successfully! Please complete your profile.';
         otpSection.classList.add('hidden');
         signupSection.classList.remove('hidden');
+        step2.classList.remove('active');
+        step2.classList.add('completed');
+        step3.classList.add('active');
         isOtpVerified = true;
+        hideLoading(verifyOtpBtn, verifyOtpText, verifyOtpSpinner);
       } catch (err) {
         console.error(err);
-        errorMsg.textContent = 'Server error. Please try again.';
-        infoMsg.textContent = '';
+        errorMsg.textContent = 'Network error. Please check your connection and try again.';
+        hideLoading(verifyOtpBtn, verifyOtpText, verifyOtpSpinner);
       }
     });
 
@@ -193,15 +480,25 @@
       const password = passwordInput.value.trim();
       const confirmPassword = confirmPasswordInput.value.trim();
 
-      if (!name || !password || password !== confirmPassword) {
-        errorMsg.textContent = 'Please fill in all fields and ensure passwords match.';
+      if (!name) {
+        errorMsg.textContent = 'Please enter your full name.';
+        return;
+      }
+
+      if (!password || password.length < 8) {
+        errorMsg.textContent = 'Password must be at least 8 characters.';
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match. Please try again.';
         return;
       }
 
       try {
         errorMsg.textContent = '';
-        infoMsg.textContent = 'Completing Signup...';
-        finalizeSignupBtn.disabled = true;
+        infoMsg.textContent = '';
+        showLoading(finalizeSignupBtn, finalizeSignupText, finalizeSignupSpinner);
 
         const response = await fetch('http://localhost:5000/users/signup-complete', {
           method: 'POST',
@@ -212,28 +509,26 @@
         });
 
         const data = await response.json();
-        console.log('datasingup', data);
-        
 
         if (!response.ok) {
-          errorMsg.textContent = data.message || 'Error completing signup.';
-          finalizeSignupBtn.disabled = false;
-          infoMsg.textContent = '';
+          errorMsg.textContent = data.message || 'Error completing registration. Please try again.';
+          hideLoading(finalizeSignupBtn, finalizeSignupText, finalizeSignupSpinner);
           return;
         }
 
-        infoMsg.textContent = 'Signup completed successfully. Redirecting to login...';
+        infoMsg.textContent = 'Account created successfully! Redirecting to login...';
+        step3.classList.remove('active');
+        step3.classList.add('completed');
+        
         setTimeout(() => {
-          window.location.href = 'login.html'; // Redirect to login page
+          window.location.href = 'login.html';
         }, 2000);
       } catch (err) {
         console.error(err);
-        errorMsg.textContent = 'Server error. Please try again.';
-        finalizeSignupBtn.disabled = false;
-        infoMsg.textContent = '';
+        errorMsg.textContent = 'Network error. Please check your connection and try again.';
+        hideLoading(finalizeSignupBtn, finalizeSignupText, finalizeSignupSpinner);
       }
     });
   </script>
-
 </body>
 </html>
