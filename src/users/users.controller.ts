@@ -7,6 +7,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RequestHandler } from '@nestjs/common/interfaces';
 import { RequestWithUser } from './comman/comman';
 import { SignupOtpDto, VerifyOtpDto } from './dto/auth.dto';
+import { loadavg } from 'node:os';
+import { log } from 'node:console';
 
 @Controller('users')
 export class UsersController {
@@ -45,7 +47,7 @@ export class UsersController {
   }
 
   @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto) {
+  async login(@Body() loginUserDto: LoginUserDto) {    
     try {
       const result =  await this.usersService.login(loginUserDto);
       return result
