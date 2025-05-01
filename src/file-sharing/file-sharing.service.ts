@@ -182,7 +182,7 @@ console.log('filede', file);
         contentType:file.contentType  
       }))
     }else {
-    return await this.fileModel.find().populate('userId').exec()
+      return await this.fileModel.find().populate('userId').sort({ createdAt: -1 }).exec();
 
     }
    
