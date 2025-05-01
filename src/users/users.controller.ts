@@ -83,6 +83,8 @@ async resetPassword(
   @Body('token') token: string,
   @Query('newPassword') newPassword: string,
 ){
+  console.log('toke', token, newPassword);
+  
   const result =  await this.usersService.resetPassword(token, newPassword)
  return { success: true, result }
 

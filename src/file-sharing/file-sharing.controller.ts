@@ -48,11 +48,11 @@ export class FileController {
     return { message: 'Files uploaded', files: results };
   }
 
-  @Get('public/:uuid')
-async download(@Param('uuid') uuid: string, @Query('downlaod') download:string, @Res({ passthrough: false }) res: Response) {
-  // const download = "false"
-  return this.fileService.viewOrDownloadFile(uuid,download, res);
-}
+//   @Get('public/:uuid')
+// async download(@Param('uuid') uuid: string, @Query('downlaod') download:string, @Res({ passthrough: false }) res: Response) {
+//   // const download = "false"
+//   return this.fileService.viewOrDownloadFile(uuid,download, res);
+// }
 
 
 // @Get('view/:uuid')
@@ -115,6 +115,7 @@ async deleteFile(@Param('uuid') uuid: string, @Req() req) {
 async getUserFiles(@Req() req: RequestWithUser) {
   const userId = req.user.userId;
   const role = req.user.role;    
+  
       if (role === 'admin') {
     // Admin => return all files
     return await this.fileService.listAllFiles(); // No filter
