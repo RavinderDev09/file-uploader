@@ -1,3 +1,13 @@
+
+const token = localStorage.getItem("accessToken");
+
+
+// Token nahi mila? Redirect to login
+if (!token) {
+window.location.href = "welcome.html"; // ya jo bhi login page ka naam hai
+}    
+
+
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
@@ -187,15 +197,6 @@ console.log('deletedftoekfdk', token);
   
   // Load files when the page loads
   loadFiles();
-
-const token = localStorage.getItem("accessToken");
-
-
-// Token nahi mila? Redirect to login
-if (!token) {
-window.location.href = "welcome.html"; // ya jo bhi login page ka naam hai
-}    
-
 
 
 let currentUserEmail = null; // store fetched user email globally
