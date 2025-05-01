@@ -118,7 +118,9 @@ async getUserFiles(@Req() req: RequestWithUser) {
   
       if (role === 'admin') {
     // Admin => return all files
-    return await this.fileService.listAllFiles(); // No filter
+    const result =  await this.fileService.listAllFiles(); // No filter
+    console.log('result', result);
+    return result
     
   }
   // Regular user => return only their files

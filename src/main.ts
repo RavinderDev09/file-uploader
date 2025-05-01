@@ -10,8 +10,7 @@ async function bootstrap() {
     credentials: true,
 
   });
- const defaultPort =10000
-  await app.listen(process.env.PORT ?? 10000);
+    await app.listen(process.env.PORT ?? 10000);
   console.log('file-uploader service running successfully ')
 }
 

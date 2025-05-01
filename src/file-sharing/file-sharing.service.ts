@@ -172,18 +172,17 @@ console.log('filede', file);
 
   async listAllFiles(userId?:string): Promise<any[]> {
     if(userId){
-      const files = await this.fileModel.find({userId:userId})// In your service      
+      const files = await this.fileModel.find({userId:userId}).populate('userId').exec()// In your service      
       return files.map((file) => ({
-        originalName: file.originalName,
+        originalName: file.originalName ,
         size: file.size,
         uuid: file.uuid,
         // createdAt: file.createdAt,
         downloadUrl: `/api/files/download/${file.uuid}`,
         contentType:file.contentType  
-      }));
+      }))
     }else {
-      // return this.fileModel.find().lean(); // All files
-      return await this.fileModel.find().populate('userId', 'name email').sort({ createdAt: -1 });
+    return await this.fileModel.find().populate('userId').exec()
 
     }
    

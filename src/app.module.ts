@@ -20,7 +20,7 @@
       MongooseModule.forRootAsync({
         imports: [ConfigModule],
         useFactory: async (configService: ConfigService) => {
-          console.log('Mongo URI:', configService.get<string>('MONGO_URI'));
+          // console.log('Mongo URI:', configService.get<string>('MONGO_URI'));
           return {
             uri: configService.get<string>('MONGO_URI'),
           };
