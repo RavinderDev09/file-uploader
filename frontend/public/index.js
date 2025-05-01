@@ -53,7 +53,8 @@ uploadBtn.addEventListener('click', async () => {
   filesToUpload.forEach(file => formData.append('files', file));
 
   try {
-    const res = await fetch('http://localhost:5000/api/files/upload', {
+    // const res = await fetch('http://localhost:5000/api/files/upload', {
+      const res = await fetch('https://file-uploader-dzr7.onrender.com/api/files/upload', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`, // ensure token is defined globally
@@ -81,100 +82,12 @@ uploadBtn.addEventListener('click', async () => {
 
 
 
-// async function loadFiles() {
-//   try {
-//     const token = localStorage.getItem('accessToken');
-//     const res = await fetch('http://localhost:5000/api/files/files', {
-//       headers: {
-//         'Authorization': `Bearer ${token}`
-//       }
-//     });
-
-//     uploadedFilesContainer.innerHTML = '<p>Loading files...</p>';
-
-//     if (!res.ok) {
-//       const errorText = await res.text();
-//       throw new Error(`Failed to load files: ${errorText}`);
-//     }
-
-//     const files = await res.json();
-
-//     if (files.length === 0) {
-//       uploadedFilesContainer.innerHTML = '<p>No files found. Upload your first file!</p>';
-//       return;
-//     }
-
-//     uploadedFilesContainer.innerHTML = '';
-
-//     for (const file of files) {
-//       const card = document.createElement('div');
-//       card.className = 'file-card';
-
-//       const uploader = file.userId ? `<p class="uploader">👤 <strong>${file.userId.name}</strong> (${file.userId.email})</p>` : '';
-
-//       const info = document.createElement('div');
-//       info.className = 'file-info';
-//       info.innerHTML = `
-//         <strong>${file.originalName}</strong>
-//         <p>${(file.size / 1024).toFixed(2)} KB</p>
-//         ${uploader}
-//       `;
-
-//       const preview = document.createElement('div');
-//       preview.className = 'preview';
-
-//       // ✅ Define publicUrl before use
-//       const publicUrl = `http://localhost:5000/api/files/public/${file.uuid}`;
-
-//       // ✅ File preview using public URL
-//       if (file.contentType.startsWith('image/')) {
-//         preview.innerHTML = `<img src="${publicUrl}" alt="Image preview" />`;
-//       } else if (file.contentType.startsWith('video/')) {
-//         preview.innerHTML = `<video src="${publicUrl}" controls></video>`;
-//       } else if (file.contentType.startsWith('audio/')) {
-//         preview.innerHTML = `<audio src="${publicUrl}" controls></audio>`;
-//       } else if (file.contentType === 'application/pdf') {
-//         preview.innerHTML = `<a href="${publicUrl}" target="_blank">Preview PDF</a>`;
-//       } else {
-//         preview.innerHTML = `<a href="${publicUrl}" target="_blank">View File</a>`;
-//       }
-
-//       // ✅ Action buttons with public URL
-//       const actions = document.createElement('div');
-//       actions.className = 'file-actions';
-//       actions.innerHTML = `
-//         <button class="btn-copy" onclick="copyToClipboard('${publicUrl}')">Copy URL</button>
-//         <a href="${publicUrl}?download=true" class="btn-download">Download</a>
-//         <button class="btn-delete" onclick="deleteFile('${file.uuid}')">Delete</button>
-//       `;
-
-//       card.appendChild(preview);
-//       card.appendChild(info);
-//       card.appendChild(actions);
-
-//       uploadedFilesContainer.appendChild(card);
-//     }
-//   } catch (err) {
-//     console.error('Failed to load files:', err);
-//     uploadedFilesContainer.innerHTML = `<p>Error loading files: ${err.message}</p>`;
-//   }
-// }
-
-
-
-// // ✅ Helper Function: Copy to Clipboard
-// function copyToClipboard(url) {
-//   navigator.clipboard.writeText(url)
-//     .then(() => alert('URL copied to clipboard!'))
-//     .catch(() => alert('Failed to copy URL.'));
-// }
-
 async function loadFiles() {
   try {
     const token = localStorage.getItem('accessToken');
     console.log('Token:', token);
 
-    const res = await fetch('http://localhost:5000/api/files/files', {
+    const res = await fetch('https://file-uploader-dzr7.onrender.com/api/files/files', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -206,7 +119,7 @@ async function loadFiles() {
 
       const preview = document.createElement('div');
       preview.className = 'preview';
-      const fileUrl = `http://localhost:5000/api/files/view/${file.uuid}`;
+      const fileUrl = `https://file-uploader-dzr7.onrender.com/api/files/view/${file.uuid}`;
 
       if (file.contentType.startsWith('image/')) {
         preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
@@ -252,7 +165,7 @@ async function deleteFile(uuid) {
 console.log('deletedftoekfdk', token);
 
   try {
-  const res = await fetch(`http://localhost:5000/api/files/delete/${uuid}`, {
+  const res = await fetch(`https://file-uploader-dzr7.onrender.com/api/files/delete/${uuid}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -295,7 +208,7 @@ async function fetchUserProfile() {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/users/profile', {
+    const response = await fetch('https://file-uploader-dzr7.onrender.com/users/profile', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -310,7 +223,7 @@ async function fetchUserProfile() {
       document.getElementById('role').innerText = `Role: ${user.role || 'N/A'}`;
       document.getElementById('profileImage').src =
         user.profileImage
-          ? `http://localhost:5000/api/files/view/${user.profileImage}`
+          ? `https://file-uploader-dzr7.onrender.com/api/files/view/${user.profileImage}`
           : 'https://www.w3schools.com/howto/img_avatar.png';
     } else {
       alert('Failed to fetch user data');
@@ -347,7 +260,7 @@ async function forgotPassword() {
   if (!confirmReset) return;
 
   try {
-    const response = await fetch('http://localhost:5000/users/forgot-password', {
+    const response = await fetch('https://file-uploader-dzr7.onrender.com/users/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: currentUserEmail })
