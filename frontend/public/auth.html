@@ -443,7 +443,8 @@
         infoMsg.textContent = '';
         showLoading(verifyOtpBtn, verifyOtpText, verifyOtpSpinner);
 
-        const response = await fetch('http://localhost:5000/users/verify-otp', {
+        // const response = await fetch('http://localhost:5000/users/verify-otp', {
+          const response = await fetch('https://file-uploader-dzr7.onrender.com/users/verify-otp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
