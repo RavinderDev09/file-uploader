@@ -7,7 +7,7 @@ async function bootstrap() {
     // origin: 'http://localhost:3002', // Allow the frontend URL
     origin: [
       'https://advancefileshare.netlify.app',
-      'https://1f11-2402-8100-2b5b-db60-f401-6c7f-9fd6-62cd.ngrok-free.app',
+      'https://689c-2402-3a80-46d0-393d-cd96-9a23-4e26-43c7.ngrok-free.app',
       'http://localhost:3002' // optional for local dev
     ],
     // methods: 'GET,POST,PUT,DELETE', // Allow these methods
