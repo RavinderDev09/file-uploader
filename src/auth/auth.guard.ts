@@ -1,31 +1,35 @@
-// import { Injecss
-
-
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers['authorization'];
-
-    if (!authHeader) {
-      throw new UnauthorizedException('Token is missing');
+    const token = this.extractTokenFromHeader(request);
+    
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
     }
-
-    const token = authHeader.split(' ')[1]; // Extract token from Bearer
 
     try {
-      const decoded = this.jwtService.verify(token);
-      request.user = decoded; // Store user data for further use (optional)
-      return true;
-    } catch (e) {
-      throw new UnauthorizedException('Token is invalid or expired');
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET || 'your-secret-key',
+      });
+      
+      // Attach user to request
+      request.user = payload;
+    } catch {
+      throw new UnauthorizedException('Invalid token');
     }
+
+    return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

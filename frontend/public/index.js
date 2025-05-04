@@ -227,7 +227,7 @@ async function fetchUserProfile() {
           ? `https://file-uploader-dzr7.onrender.com/api/files/view/${user.profileImage}`
           : 'https://www.w3schools.com/howto/img_avatar.png';
     } else {
-      alert('Failed to fetch user data');
+      alert('Failed to fetch user data'); 
     }
   } catch (error) {
     console.error('Error fetching user data:', error);

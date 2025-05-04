@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --primary-dark: #3a0ca3;
+      --secondary-color: #7209b7;
+      --accent-color: #f72585;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --gray-color: #6c757d;
+      --success-color: #4cc9f0;
+      --error-color: #ef233c;
+      --warning-color: #ff9e00;
+      --card-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.2);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: var(--dark-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    .profile-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: var(--transition);
+      margin-bottom: 2rem;
+    }
+    
+    .profile-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      padding: 2.5rem;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transform: rotate(30deg);
+    }
+    
+    .profile-img-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      flex-shrink: 0;
+      margin-right: 2rem;
+    }
+    
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+    }
+    
+    .profile-img:hover {
+      transform: scale(1.05);
+    }
+    
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .profile-name {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-email {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .profile-email i {
+      margin-right: 0.5rem;
+    }
+    
+    .profile-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    
+    .stat-item {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      transition: var(--transition);
+    }
+    
+    .stat-item:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-3px);
+    }
+    
+    .stat-icon {
+      font-size: 1.25rem;
+      margin-right: 0.75rem;
+    }
+    
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-top: 0.2rem;
+    }
+    
+    .profile-content {
+      padding: 2.5rem;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 1.5rem;
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+      border-radius: 3px;
+    }
+    
+    .upload-section {
+      background: var(--light-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px dashed rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+    }
+    
+    .upload-section:hover {
+      border-color: var(--primary-color);
+    }
+    
+    .file-input-wrapper {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    
+    .file-input-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .file-input-label:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+    }
+    
+    .file-input-label i {
+      margin-right: 0.5rem;
+    }
+    
+    #uploadInput {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .file-info {
+      font-size: 0.9rem;
+      color: var(--gray-color);
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .file-info i {
+      margin-right: 0.5rem;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn i {
+      margin-right: 0.5rem;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .btn-outline:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-danger {
+      background: var(--error-color);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #d90429;
+      transform: translateY(-2px);
+    }
+
+    .btn-continue {
+      background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);
+      color: white;
+    }
+    
+    .btn-continue:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(76, 201, 240, 0.3);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 0.5rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .message {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .message i {
+      margin-right: 0.5rem;
+    }
+    
+    .error-message {
+      background-color: rgba(239, 35, 60, 0.1);
+      color: var(--error-color);
+      border-left: 3px solid var(--error-color);
+    }
+    
+    .success-message {
+      background-color: rgba(76, 201, 240, 0.1);
+      color: var(--success-color);
+      border-left: 3px solid var(--success-color);
+    }
+    
+    .warning-message {
+      background-color: rgba(255, 158, 0, 0.1);
+      color: var(--warning-color);
+      border-left: 3px solid var(--warning-color);
+    }
+    
+    .profile-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .edit-profile-btn {
+      background: linear-gradient(135deg, var(--accent-color) 0%, #b5179e 100%);
+    }
+    
+    .edit-profile-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(247, 37, 133, 0.3);
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1.5rem;
+      }
+      
+      .profile-img-container {
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+      }
+      
+      .profile-stats {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      .profile-content {
+        padding: 1.5rem;
+      }
+      
+      .profile-actions {
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .profile-name {
+        font-size: 1.5rem;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .profile-actions {
+        flex-direction: column;
+      }
+    }
+    
+    /* Badge */
+    .profile-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--accent-color);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-img-container">
+          <img id="profileImage" class="profile-img" src="" alt="Profile Image" />
+          <div class="profile-badge" id="membershipBadge">PRO</div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name" id="userName">Loading...</h1>
+          <p class="profile-email" id="userEmail"><i class="fas fa-envelope"></i> user@example.com</p>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+              <div>
+                <div class="stat-value" id="joinedDate">2 years</div>
+                <div class="stat-label">Member since</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon"><i class="fas fa-star"></i></div>
+              <div>
+                <div class="stat-value" id="userRating">4.8</div>
+                <div class="stat-label">Rating</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+              <div>
+                <div class="stat-value" id="tasksCompleted">128</div>
+                <div class="stat-label">Tasks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-content">
+        <h2 class="section-title">Profile Settings</h2>
+        
+        <div id="uploadSection" class="upload-section hidden">
+          <h3 style="margin-bottom: 1rem;">Update Profile Picture</h3>
+          <div class="file-input-wrapper">
+            <label for="uploadInput" class="file-input-label btn-primary">
+              <i class="fas fa-cloud-upload-alt"></i> Choose Image
+            </label>
+            <input type="file" id="uploadInput" accept="image/*" />
+          </div>
+          <p class="file-info" id="fileInfo"><i class="fas fa-info-circle"></i> No file selected (Max 2MB)</p>
+          <div id="uploadMessage" class="hidden"></div>
+          
+          <div class="profile-actions">
+            <button id="uploadBtn" class="btn btn-primary">
+              <i class="fas fa-upload"></i> Upload Picture
+            </button>
+            <button class="btn btn-outline" id="cancelUploadBtn">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+        
+        <div id="profileDetails">
+          <div class="message hidden" id="statusMessage"></div>
+          
+          <div class="profile-actions">
+            <button id="changePhotoBtn" class="btn edit-profile-btn">
+              <i class="fas fa-camera"></i> Change Photo
+            </button>
+            <!-- Replaced Edit Profile button with Continue button -->
+            <button class="btn btn-continue" id="continueBtn">
+              <i class="fas fa-arrow-right"></i> Continue
+            </button>
+            <button class="btn btn-danger" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const profileImage = document.getElementById('profileImage');
+    const userName = document.getElementById('userName');
+    const userEmail = document.getElementById('userEmail');
+    const uploadSection = document.getElementById('uploadSection');
+    const uploadInput = document.getElementById('uploadInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadMessage = document.getElementById('uploadMessage');
+    const changePhotoBtn = document.getElementById('changePhotoBtn');
+    const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const joinedDate = document.getElementById('joinedDate');
+    const userRating = document.getElementById('userRating');
+    const tasksCompleted = document.getElementById('tasksCompleted');
+    const membershipBadge = document.getElementById('membershipBadge');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const continueBtn = document.getElementById('continueBtn');
+
+    // Constants
+    const apiBase = 'http://localhost:5000';
+    const token = localStorage.getItem('accessToken');
+    const userId = localStorage.getItem('userId');
+
+    // Redirect to login if not authenticated
+    if (!token || !userId) {
+      window.location.href = 'login.html';
+    }
+
+    // Event Listeners
+    uploadInput.addEventListener('change', handleFileSelect);
+    uploadBtn.addEventListener('click', uploadProfilePicture);
+    changePhotoBtn.addEventListener('click', toggleUploadSection);
+    cancelUploadBtn.addEventListener('click', toggleUploadSection);
+    logoutBtn.addEventListener('click', logout);
+    continueBtn.addEventListener('click', continueToMainSite);
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserProfile();
+      loadUserStats();
+    });
+
+    async function loadUserProfile() {
+      try {
+        showLoading(userName, 'Loading profile...');
+        
+        const res = await fetch(`${apiBase}/users/${userId}`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(res.status === 401 ? 'Session expired. Please login again.' : 'Failed to fetch user');
+        }
+
+        const user = await res.json();
+        
+        userName.textContent = user.name || user.email.split('@')[0];
+        userEmail.innerHTML = `<i class="fas fa-envelope"></i> ${user.email}`;
+
+        if (user.profilePictureId) {
+          profileImage.src = `${apiBase}/users/picture-show/${user.profilePictureId}?${Date.now()}`;
+          profileImage.onerror = () => {
+            profileImage.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name || user.email) + '&background=random';
+          };
+          changePhotoBtn.classList.remove('hidden');
+        } else {
+          profileImage.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name || user.email) + '&background=random';
+          uploadSection.classList.remove('hidden');
+          changePhotoBtn.classList.add('hidden');
+        }
+
+      } catch (err) {
+        console.error('Error loading profile:', err);
+        showMessage(statusMessage, err.message, 'error');
+        if (err.message.includes('Session expired')) {
+          setTimeout(logout, 2000);
+        }
+      }
+    }
+
+    async function loadUserStats() {
+      try {
+        // Simulate fetching user stats
+        setTimeout(() => {
+          joinedDate.textContent = 'Jun 2022';
+          userRating.textContent = '4.8';
+          tasksCompleted.textContent = '128';
+          membershipBadge.textContent = 'PRO';
+          membershipBadge.style.backgroundColor = '#f72585';
+        }, 800);
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // Validate file type
+      if (!file.type.match('image.*')) {
+        showMessage(fileInfo, '<i class="fas fa-exclamation-circle"></i> Please select an image file (JPEG, PNG)', 'error');
+        uploadBtn.disabled = true;
+        return;
+      }
+      
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        showMessage(fileInfo, `<i class="fas fa-exclamation-circle"></i> Image must be less than 2MB (current: ${(file.size / 1024 / 1024).toFixed(2)}MB)`, 'error');
+        uploadBtn.disabled = true;
+        return;
+      }
+      
+      // Display file info
+      fileInfo.innerHTML = `<i class="fas fa-file-image"></i> ${file.name} (${(file.size / 1024).toFixed(1)}KB)`;
+      uploadBtn.disabled = false;
+      
+      // Preview image
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        profileImage.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadProfilePicture() {
+      const file = uploadInput.files[0];
+      if (!file) {
+        showMessage(uploadMessage, '<i class="fas fa-exclamation-circle"></i> Please select a file first', 'error');
+        return;
+      }
+
+      try {
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<span class="loading"></span> <i class="fas fa-upload"></i> Uploading...';
+        
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+
+        const res = await fetch(`${apiBase}/users/profile-create`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        if (!res.ok) {
+          throw new Error(res.status === 413 ? 'File too large (max 2MB)' : 
+                         res.status === 415 ? 'Unsupported file type' : 'Upload failed');
+        }
+
+        showMessage(uploadMessage, '<i class="fas fa-check-circle"></i> Profile picture updated successfully!', 'success');
+        
+        // Update UI immediately
+        changePhotoBtn.classList.remove('hidden');
+        uploadSection.classList.add('hidden');
+        
+        // Store image in localStorage for quick access
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          localStorage.setItem(`profileImage_${userId}`, e.target.result);
+        };
+        reader.readAsDataURL(file);
+
+      } catch (err) {
+        console.error('Upload error:', err);
+        showMessage(uploadMessage, `<i class="fas fa-exclamation-circle"></i> ${err.message}`, 'error');
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Try Again';
+      }
+    }
+
+    function toggleUploadSection() {
+      uploadSection.classList.toggle('hidden');
+      if (!uploadSection.classList.contains('hidden')) {
+        uploadInput.value = '';
+        fileInfo.innerHTML = '<i class="fas fa-info-circle"></i> No file selected (Max 2MB)';
+        uploadBtn.disabled = true;
+        uploadMessage.classList.add('hidden');
+      }
+    }
+
+    function continueToMainSite() {
+      window.location.href = 'index.html';
+    }
+
+    function logout() {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userId');
+      window.location.href = 'login.html';
+    }
+
+    // Helper functions
+    function showLoading(element, text = 'Loading...') {
+      element.innerHTML = `<span class="loading"></span> ${text}`;
+    }
+
+    function showMessage(element, message, type) {
+      element.innerHTML = message;
+      element.className = `message ${type}-message`;
+      element.classList.remove('hidden');
+      
+      // Auto-hide success messages after 5 seconds
+      if (type === 'success') {
+        setTimeout(() => {
+          element.classList.add('hidden');
+        }, 5000);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -520,7 +520,8 @@
         infoMsg.textContent = 'Account created successfully! Redirecting to login...';
         step3.classList.remove('active');
         step3.classList.add('completed');
-        
+      
+
         setTimeout(() => {
           window.location.href = 'login.html';
         }, 2000);
@@ -530,6 +531,7 @@
         hideLoading(finalizeSignupBtn, finalizeSignupText, finalizeSignupSpinner);
       }
     });
+
   </script>
 </body>
 </html>

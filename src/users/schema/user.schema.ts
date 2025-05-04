@@ -29,5 +29,11 @@ export class User{
   createdBy: string;
   @Prop()
   updatedBy: string;
+  @Prop()
+  profilePictureId:string
+  @Prop()
+  bio?:string
+  @Prop()
+  age?:string
 }
 export const UserSchema = SchemaFactory.createForClass(User)

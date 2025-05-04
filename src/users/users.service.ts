@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User, UserDocument } from './schema/user.schema';
-import { CreateUserDto, LoginUserDto, SignupCompleteDto } from './dto/user.dto';
-import { Model, Types } from 'mongoose';
+import { CreateUserDto, LoginUserDto, SignupCompleteDto, UpdateUserDto } from './dto/user.dto';
+import { Model, ObjectId, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -83,6 +83,7 @@ export class UsersService {
         return {
           accessToken,
           user: userWithoutPassword,
+          userId:user.id
         };
       }
 
@@ -209,13 +210,44 @@ export class UsersService {
     
         return { message: 'Signup completed successfully. You can now login.' };
       }
-    
 
-     async findUserById(userId:string){
-     const resut = await this.userModel.findOne({_id: new Types.ObjectId(userId)}) 
-      return resut
-}
+      // users.service.ts
+      async updateProfile(userId: string, filePath: string) {
+        // Find and update or create new profile
+        return this.userModel.findOneAndUpdate({ userId }, // Filter by userId
+          { 
+            $set: { 
+              profilePicture: filePath 
+            } 
+          },
+          { 
+            new: true,
+            upsert: true, // Create if doesn't exist
+            strict: false // Temporarily disable strict mode if needed
+          }
+        ).exec();
+      }
 
+
+      async userFind(userId: string): Promise<User> {
+        return this.userModel.findById(userId).exec();
+      }
+
+      async updateUser(data:UpdateUserDto):Promise<User>{
+        const result = await this.userModel.findOneAndUpdate({_id:data.id }, {$set:{name:data.name, bio:data.bio, age:data.age}}, {new:true}).exec()
+        return result
+      }
+  
+
+      //.profile 
+      async createProfile(fileId,user): Promise<any> {
+        return this.userModel.findOneAndUpdate(
+          { _id: user.sub },                        
+          { $set: { profilePictureId: fileId } },       
+          { new: true }).exec();
+
+        }
+      
 }
 
 

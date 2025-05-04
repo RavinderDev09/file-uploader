@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { EmailServiceModule } from 'src/email-service/email.module';
 import { EmailService } from 'src/email-service/email-service.service';
+import { GridFsService } from 'src/gridFS/gridFs.service';
 
 
 @Module({
@@ -21,7 +22,7 @@ import { EmailService } from 'src/email-service/email-service.service';
 
   ],
   controllers: [UsersController],
-  providers: [UsersService,EmailService],
+  providers: [UsersService,EmailService,GridFsService],
 })
 
 export class UsersModule {}

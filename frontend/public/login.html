@@ -321,9 +321,11 @@
 
         // Save token in localStorage
         localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('userId', data.user._id);
         
         // Redirect to dashboard
-        window.location.href = 'index.html';
+        // window.location.href = 'index.html';
+        window.location.href='profile.html'
 
       } catch (error) {
         console.error('Error:', error);

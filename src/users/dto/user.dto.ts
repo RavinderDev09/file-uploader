@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from "class-validator";
+import { IsEmail, IsNumber, IsOptional, IsString } from "class-validator";
 
 
 export class CreateUserDto{
@@ -36,4 +36,26 @@ export class SignupCompleteDto {
   @IsString()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
+}
+
+
+// // dto/create-profile.dto.ts
+export class CreateProfileDto {
+  name: string;
+  email: string;
+}
+
+
+export class UpdateUserDto{
+  id:string
+  @IsString()
+  name:string 
+  @IsEmail()
+  email:string
+  @IsString()
+  bio:string
+  @IsNumber()
+  mobileNumber:number
+  @IsString()
+  age:string
 }

@@ -26,7 +26,7 @@
           };
         },
         inject: [ConfigService],
-      }),
+      }), 
      ],
     providers: [],
   })
