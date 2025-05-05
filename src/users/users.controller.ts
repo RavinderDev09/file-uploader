@@ -4,17 +4,13 @@ import { CreateUserDto, LoginUserDto, SignupCompleteDto, UpdateUserDto } from '.
 import { User } from './schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { RequestHandler } from '@nestjs/common/interfaces';
 import { RequestWithUser } from './comman/comman';
 import { SignupOtpDto, VerifyOtpDto } from './dto/auth.dto';
-import { extname } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ObjectId, Types } from 'mongoose';
 import { Response } from 'express';
 import { GridFsService } from 'src/gridFS/gridFs.service';
-import { IsString } from 'class-validator';
 
 @Controller('users')
 export class UsersController {
@@ -38,6 +34,11 @@ export class UsersController {
     
   }
 
+  @Post('signup-complete')
+  async signupComplete(@Body() signupCompleteDto: SignupCompleteDto) {
+    return this.usersService.signupComplete(signupCompleteDto);
+  }
+
   @Post('signup-otp')
   signup(@Body() signupDto: SignupOtpDto) {
     return this.usersService.signupOtp(signupDto);
@@ -48,14 +49,9 @@ export class UsersController {
     return this.usersService.verifyOtp(dto);
   }
 
-@Get(':id')
-async findOne(@Param() params):Promise<User>{ 
-  const result = await this.usersService.userFind(params.id)
-  return result
-}
 
 
-@Put(':id')
+@Put('update/:id')
 async updateUser(@Body() data:UpdateUserDto):Promise<User>{
   console.log('dataa', data);
   const result =  await this.usersService.updateUser(data)  
@@ -95,6 +91,30 @@ async resetPassword(
   const result =  await this.usersService.resetPassword(token, newPassword)
  return { success: true, result }
 
+}
+
+
+@Get('profile')
+//  @UseGuards(AuthGuard('jwt')) 
+@UseGuards(JwtAuthGuard)
+ async getProfile(@Req() req : RequestWithUser) {
+  //@ts-ignore
+   const userId = req.user.sub   
+   const result = await this.usersService.userFind(userId);
+   if (!result) {
+     throw new NotFoundException('User not found');
+   }
+   return {
+     success: true,
+     result,
+   };
+ }
+
+
+ @Get(':id')
+async findOne(@Param() params):Promise<User>{ 
+  const result = await this.usersService.userFind(params.id)
+  return result
 }
 
 

@@ -28,14 +28,20 @@ export class LoginUserDto {
 export class SignupCompleteDto {
   @IsEmail()
   email: string;
-
   @IsString()
+  @IsNotEmpty()
   @MinLength(1, { message: 'Name is required' })
   name: string;
-
   @IsString()
+  @IsNotEmpty()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
+  @IsNumber()
+  @IsNotEmpty()
+  mobileNumber:number
+  @IsNumber()
+  @IsNotEmpty()
+  age:number
 }
 
 
@@ -57,5 +63,5 @@ export class UpdateUserDto{
   @IsNumber()
   mobileNumber:number
   @IsString()
-  age:string
+  age:number
 }

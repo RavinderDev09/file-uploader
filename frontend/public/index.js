@@ -1,4 +1,3 @@
-
 const token = localStorage.getItem("accessToken");
 
 
@@ -94,9 +93,6 @@ uploadBtn.addEventListener('click', async () => {
 
 async function loadFiles() {
   try {
-    const token = localStorage.getItem('accessToken');
-    console.log('Token:', token);
-
     const res = await fetch('https://file-uploader-dzr7.onrender.com/api/files/files', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -120,12 +116,23 @@ async function loadFiles() {
     uploadedFilesContainer.innerHTML = '';
 
     for (const file of files) {
+      console.log('file', file);
+      
       const card = document.createElement('div');
+    
       card.className = 'file-card';
+
+
+      const uploader = file.userId ? `<p class="uploader">👤 <strong>${file.userId.name}</strong> (${file.userId.email})</p>` : '';
+
 
       const info = document.createElement('div');
       info.className = 'file-info';
-      info.innerHTML = `<strong>${file.originalName}</strong><p>${(file.size / 1024).toFixed(2)} KB</p>`;
+      info.innerHTML = `
+      <strong>${file.originalName}</strong>
+      <p>${(file.size / 1024).toFixed(2)} KB</p>
+      ${uploader}
+    `;
 
       const preview = document.createElement('div');
       preview.className = 'preview';
@@ -161,6 +168,8 @@ async function loadFiles() {
   }
 }
 
+
+
 // ✅ Helper Function: Copy to Clipboard
 function copyToClipboard(url) {
   navigator.clipboard.writeText(url)
@@ -171,9 +180,6 @@ function copyToClipboard(url) {
 
 
 async function deleteFile(uuid) {
-  const token = localStorage.getItem('accessToken');
-console.log('deletedftoekfdk', token);
-
   try {
   const res = await fetch(`https://file-uploader-dzr7.onrender.com/api/files/delete/${uuid}`, {
     method: 'DELETE',
@@ -202,30 +208,32 @@ console.log('deletedftoekfdk', token);
 let currentUserEmail = null; // store fetched user email globally
 
 async function fetchUserProfile() {
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    alert("No token found. Please login again.");
-    return;
-  }
-
+ 
   try {
-    const response = await fetch('https://file-uploader-dzr7.onrender.com/users/profile', {
+    // const response = await fetch('https://file-uploader-dzr7.onrender.com/users/profile', {
+      const response = await fetch('http://localhost:5000/users/profile', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    const data = await response.json();
+    const data = await response.json();    
+    
     if (data.success && data.result) {
       const user = data.result;
       currentUserEmail = user.email || null; // 🔥 Save user email globally
 
       document.getElementById('username').innerText = `Name: ${user.name || 'N/A'}`;
       document.getElementById('email').innerText = `Email: ${user.email || 'N/A'}`;
-      document.getElementById('role').innerText = `Role: ${user.role || 'N/A'}`;
+      // document.getElementById('role').innerText = `Role: ${user.role || 'N/A'}`;
       document.getElementById('profileImage').src =
-        user.profileImage
-          ? `https://file-uploader-dzr7.onrender.com/api/files/view/${user.profileImage}`
+        user.profilePictureId
+          // ? `https://file-uploader-dzr7.onrender.com/api/files/view/${user.profilePictureId}`
+          ? `http://localhost:5000/users/picture-show/${user.profilePictureId}`
           : 'https://www.w3schools.com/howto/img_avatar.png';
+          document.getElementById('mobileNumber').innerText = `Mobile Number: ${user.mobileNumber || 'N/A'}`
+          document.getElementById('age').innerText = `Age: ${user.age || 'N/A'}`
+
+        
     } else {
       alert('Failed to fetch user data'); 
     }

@@ -183,7 +183,7 @@ export class UsersService {
       
 
       async signupComplete(data: SignupCompleteDto): Promise<any> {
-        const { email, name, password } = data;
+        const { email, name, password, age, mobileNumber } = data;
     
         // Find user by email (after OTP verification)
         const user = await this.userModel.findOne({ email });
@@ -203,6 +203,8 @@ export class UsersService {
         // Update the user’s record
         user.name = name;
         user.password = hashedPassword;
+        user.age= age;
+        user.mobileNumber = mobileNumber;
         user.isVerified = USERVERIFIEDSTATUS.compelete; // Mark user as verified after completing signup
     
         // Save updated user
@@ -234,7 +236,8 @@ export class UsersService {
       }
 
       async updateUser(data:UpdateUserDto):Promise<User>{
-        const result = await this.userModel.findOneAndUpdate({_id:data.id }, {$set:{name:data.name, bio:data.bio, age:data.age}}, {new:true}).exec()
+        // const result = await this.userModel.findOneAndUpdate({_id:data.id }, {$set:{name:data.name, bio:data.bio, age:data.age, mobileNumber:data.mobileNumber}}, {new:true}).exec()
+        const result = await this.userModel.findOneAndUpdate({_id:data.id }, {$set:{...data}}, {new:true}).exec()
         return result
       }
   

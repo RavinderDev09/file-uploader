@@ -34,6 +34,8 @@ export class User{
   @Prop()
   bio?:string
   @Prop()
-  age?:string
+  age?:number
+  @Prop()
+  mobileNumber:number
 }
 export const UserSchema = SchemaFactory.createForClass(User)
