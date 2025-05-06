@@ -224,7 +224,6 @@ async function fetchUserProfile() {
 
       document.getElementById('username').innerText = `Name: ${user.name || 'N/A'}`;
       document.getElementById('email').innerText = `Email: ${user.email || 'N/A'}`;
-      // document.getElementById('role').innerText = `Role: ${user.role || 'N/A'}`;
       document.getElementById('profileImage').src =
         user.profilePictureId
           // ? `https://file-uploader-dzr7.onrender.com/api/files/view/${user.profilePictureId}`
