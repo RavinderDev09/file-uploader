@@ -420,7 +420,8 @@
         infoMsg.textContent = '';
         showLoading(sendOtpBtn, sendOtpText, sendOtpSpinner);
 
-        const response = await fetch('https://file-uploader-dzr7.onrender.com/users/signup-otp', {
+        const response = await fetch('https://file-uploader-production-d84b.up.railway.app/users/signup-otp', {
+        // const response = await fetch('http://file-uploader-env.eba-pnucyqj3.ap-south-1.elasticbeanstalk.com/users/signup-otp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -464,7 +465,8 @@
         infoMsg.textContent = '';
         showLoading(verifyOtpBtn, verifyOtpText, verifyOtpSpinner);
 
-        const response = await fetch('https://file-uploader-dzr7.onrender.com/users/verify-otp', {
+        const response = await fetch('https://file-uploader-production-d84b.up.railway.app/users/verify-otp', {
+        // const response = await fetch('http://file-uploader-env.eba-pnucyqj3.ap-south-1.elasticbeanstalk.com/users/verify-otp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -513,10 +515,22 @@
         return;
       }
 
-      if (mobileNumber && !/^\+[0-9]{11,14}$/.test(mobileNumber)) {
-        errorMsg.textContent = 'Please enter a valid mobile number with country code (e.g., +911234567890)';
-        return;
-      }
+      // if (mobileNumber && !/^\+[0-9]{11,14}$/.test(mobileNumber)) {
+      //   errorMsg.textContent = 'Please enter a valid mobile number with country code (e.g., +911234567890)';
+      //   return;
+      // }
+
+      if (mobileNumber) {
+  // Remove spaces and dashes for consistent validation
+  const cleanedNumber = mobileNumber.replace(/[\s\-]/g, '');
+
+  const mobileRegex = /^\+[1-9]{1}[0-9]{0,3}[1-9]{1}[0-9]{7,11}$/;
+
+  if (!mobileRegex.test(cleanedNumber)) {
+    errorMsg.textContent = 'Invalid number. Format: +<country code><number> (e.g., +918765432109)';
+    return;
+  }
+}
 
       if (!password || password.length < 8) {
         errorMsg.textContent = 'Password must be at least 8 characters.';
@@ -534,8 +548,8 @@
         showLoading(finalizeSignupBtn, finalizeSignupText, finalizeSignupSpinner);
 
        
-       // const response = await fetch('https://file-uploader-dzr7.onrender.com/users/signup-complete', {
-          const response = await fetch('http://localhost:5000/users/signup-complete', {
+       const response = await fetch('https://file-uploader-production-d84b.up.railway.app/users/signup-complete', {
+          // const response = await fetch('http://file-uploader-env.eba-pnucyqj3.ap-south-1.elasticbeanstalk.com/users/signup-complete', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

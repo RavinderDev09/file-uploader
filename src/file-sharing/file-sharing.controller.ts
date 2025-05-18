@@ -25,6 +25,7 @@ import { RequestWithUser } from 'src/users/comman/comman';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 import mongoose, { Types } from 'mongoose';
 import { equals } from 'class-validator';
+import { log } from 'console';
 
 @Controller('api/files')
 export class FileController {
@@ -48,33 +49,6 @@ export class FileController {
     return { message: 'Files uploaded', files: results };
   }
 
-//   @Get('public/:uuid')
-// async download(@Param('uuid') uuid: string, @Query('downlaod') download:string, @Res({ passthrough: false }) res: Response) {
-//   // const download = "false"
-//   return this.fileService.viewOrDownloadFile(uuid,download, res);
-// }
-
-
-// @Get('view/:uuid')
-// @UseGuards(AuthGuard('jwt'))
-// async viewOrDownloadFile(
-//   @Param('uuid') uuid: string,
-//   @Query('download') download: string,
-//   @Res() res: Response,
-//   @Req() req
-// ): Promise<any> {  
-  // const userId = new mongoose.Types.ObjectId(req.user.userId); 
-  // const uiFind = await this.fileService.getFileByUuid(uuid)
-  // if(req.user.role === 'admin'){
-  //   return this.fileService.viewOrDownloadFile(uuid, download, res);
-  // } else if (req.user.role === 'user' && userId.equals(uiFind.userId)) {
-  //   return this.fileService.viewOrDownloadFile(uuid, download, res);
-  // }
-  // else{
-  //   throw new ForbiddenException('You are not allowed to delete this file')
-  // }
-
-// }
 
 @Get('view/:uuid')
 async viewOrDownloadFile(
@@ -82,7 +56,7 @@ async viewOrDownloadFile(
   @Query('download') download: string,
   @Res() res: Response,
   @Req() req
-): Promise<any> {  
+): Promise<any> {    
     return this.fileService.viewOrDownloadFile(uuid, download, res);
 }
 
@@ -114,8 +88,7 @@ async deleteFile(@Param('uuid') uuid: string, @Req() req) {
 @UseGuards(AuthGuard('jwt'))
 async getUserFiles(@Req() req: RequestWithUser) {
   const userId = req.user.userId;
-  const role = req.user.role;    
-  
+  const role = req.user.role;      
       if (role === 'admin') {
     // Admin => return all files
     return  await this.fileService.listAllFiles(); // No filter

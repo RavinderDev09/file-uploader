@@ -10,19 +10,14 @@
   @Module({
     imports: [FileSharingModule,AuthModule,
       ConfigModule.forRoot({ isGlobal: true,   envFilePath: '.env' }),  // Ensure env variables are loaded
-      // MongooseModule.forRootAsync({
-      //   imports: [ConfigModule],
-      //   useFactory: async (configService: ConfigService) => ({
-      //     uri: configService.get<string>('MONGO_URI'),
-      //   }),
-      //   inject: [ConfigService],
-      // }), 
+     
       MongooseModule.forRootAsync({
         imports: [ConfigModule],
         useFactory: async (configService: ConfigService) => {
-          // console.log('Mongo URI:', configService.get<string>('MONGO_URI'));
           return {
-            uri: configService.get<string>('MONGO_URI'),
+            // uri: configService.get<string>('MONGO_URI'),
+            uri: process.env.MONGO_URI
+
           };
         },
         inject: [ConfigService],

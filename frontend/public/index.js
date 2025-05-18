@@ -62,8 +62,8 @@ uploadBtn.addEventListener('click', async () => {
   filesToUpload.forEach(file => formData.append('files', file));
 
   try {
-    // const res = await fetch('http://localhost:5000/api/files/upload', {
-      const res = await fetch('https://file-uploader-dzr7.onrender.com/api/files/upload', {
+    const res = await fetch('https://file-uploader-production-d84b.up.railway.app/api/files/upload', {
+      // const res = await fetch('http://file-uploader-env.eba-pnucyqj3.ap-south-1.elasticbeanstalk.com/api/files/upload', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`, // ensure token is defined globally
@@ -93,7 +93,7 @@ uploadBtn.addEventListener('click', async () => {
 
 async function loadFiles() {
   try {
-    const res = await fetch('https://file-uploader-dzr7.onrender.com/api/files/files', {
+    const res = await fetch('https://file-uploader-production-d84b.up.railway.app/api/files/files', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -115,14 +115,10 @@ async function loadFiles() {
 
     uploadedFilesContainer.innerHTML = '';
 
-    for (const file of files) {
-      console.log('file', file);
-      
+    for (const file of files) {      
       const card = document.createElement('div');
     
       card.className = 'file-card';
-
-
       const uploader = file.userId ? `<p class="uploader">👤 <strong>${file.userId.name}</strong> (${file.userId.email})</p>` : '';
 
 
@@ -136,7 +132,7 @@ async function loadFiles() {
 
       const preview = document.createElement('div');
       preview.className = 'preview';
-      const fileUrl = `https://file-uploader-dzr7.onrender.com/api/files/view/${file.uuid}`;
+      const fileUrl = `https://file-uploader-production-d84b.up.railway.app/api/files/view/${file.uuid}`;
 
       if (file.contentType.startsWith('image/')) {
         preview.innerHTML = `<img src="${fileUrl}" alt="Image preview" />`;
@@ -181,7 +177,7 @@ function copyToClipboard(url) {
 
 async function deleteFile(uuid) {
   try {
-  const res = await fetch(`https://file-uploader-dzr7.onrender.com/api/files/delete/${uuid}`, {
+  const res = await fetch(`https://file-uploader-production-d84b.up.railway.app/api/files/delete/${uuid}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -208,17 +204,20 @@ async function deleteFile(uuid) {
 let currentUserEmail = null; // store fetched user email globally
 
 async function fetchUserProfile() {
- 
+  console.log('token', token);
+  
   try {
-    // const response = await fetch('https://file-uploader-dzr7.onrender.com/users/profile', {
-      const response = await fetch('http://localhost:5000/users/profile', {
+    const response = await fetch('https://file-uploader-production-d84b.up.railway.app/users/profile', {
+      // const response = await fetch('http://file-uploader-env.eba-pnucyqj3.ap-south-1.elasticbeanstalk.com/users/profile', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    const data = await response.json();    
+    const data = await response.json();   
+    console.log('dataaa', data);
+     
     
-    if (data.success && data.result) {
+    if (data.success && data) {
       const user = data.result;
       currentUserEmail = user.email || null; // 🔥 Save user email globally
 
@@ -227,7 +226,7 @@ async function fetchUserProfile() {
       document.getElementById('profileImage').src =
         user.profilePictureId
           // ? `https://file-uploader-dzr7.onrender.com/api/files/view/${user.profilePictureId}`
-          ? `http://localhost:5000/users/picture-show/${user.profilePictureId}`
+          ? `https://file-uploader-production-d84b.up.railway.app/users/picture-show/${user.profilePictureId}`
           : 'https://www.w3schools.com/howto/img_avatar.png';
           document.getElementById('mobileNumber').innerText = `Mobile Number: ${user.mobileNumber || 'N/A'}`
           document.getElementById('age').innerText = `Age: ${user.age || 'N/A'}`
@@ -268,7 +267,7 @@ async function forgotPassword() {
   if (!confirmReset) return;
 
   try {
-    const response = await fetch('https://file-uploader-dzr7.onrender.com/users/forgot-password', {
+    const response = await fetch('https://file-uploader-production-d84b.up.railway.app/users/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: currentUserEmail })

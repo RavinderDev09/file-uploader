@@ -98,6 +98,7 @@ async resetPassword(
 //  @UseGuards(AuthGuard('jwt')) 
 @UseGuards(JwtAuthGuard)
  async getProfile(@Req() req : RequestWithUser) {
+  
   //@ts-ignore
    const userId = req.user.sub   
    const result = await this.usersService.userFind(userId);
