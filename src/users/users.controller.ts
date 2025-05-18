@@ -95,11 +95,10 @@ async resetPassword(
 
 
 @Get('profile')
-//  @UseGuards(AuthGuard('jwt')) 
-@UseGuards(JwtAuthGuard)
+ @UseGuards(AuthGuard('jwt')) 
+// @UseGuards(JwtAuthGuard)
  async getProfile(@Req() req : RequestWithUser) {
-  
-  //@ts-ignore
+    //@ts-ignore
    const userId = req.user.sub   
    const result = await this.usersService.userFind(userId);
    if (!result) {
