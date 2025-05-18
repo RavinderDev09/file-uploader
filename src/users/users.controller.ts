@@ -11,6 +11,7 @@ import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { ObjectId, Types } from 'mongoose';
 import { Response } from 'express';
 import { GridFsService } from 'src/gridFS/gridFs.service';
+import { log } from 'util';
 
 @Controller('users')
 export class UsersController {
@@ -101,7 +102,7 @@ async resetPassword(
     //@ts-ignore
    const userId = req.user.sub   
    const result = await this.usersService.userFind(userId);
-   if (!result) {
+      if (!result) {
      throw new NotFoundException('User not found');
    }
    return {

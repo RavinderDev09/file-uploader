@@ -232,7 +232,7 @@ export class UsersService {
 
 
       async userFind(userId: string): Promise<User> {
-        return this.userModel.findById(userId).exec();
+        return this.userModel.findOne({id:userId}).exec();
       }
 
       async updateUser(data:UpdateUserDto):Promise<User>{

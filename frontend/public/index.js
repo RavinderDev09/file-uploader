@@ -207,7 +207,8 @@ async function fetchUserProfile() {
   console.log('token', token);
   
   try {
-    const response = await fetch('https://file-uploader-production-d84b.up.railway.app/users/profile', {
+    const response = await fetch('https://file-uploader-dzr7.onrender.com/users/profile', {
+        // const response = await fetch('http://localhost:5000/users/profile', {
       // const response = await fetch('http://file-uploader-env.eba-pnucyqj3.ap-south-1.elasticbeanstalk.com/users/profile', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` }
